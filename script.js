@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   const rowsContainer = document.getElementById("rows-container");
-  const addRowBtn = document.getElementById("add-row-btn");
   const exportBtn = document.getElementById("export-btn");
   const rowTemplate = document.getElementById("row-template");
 
@@ -14,10 +13,32 @@ document.addEventListener("DOMContentLoaded", function () {
   const startDateDaySelect = document.getElementById("start-date-day");
   const startDateError = document.getElementById("start-date-error");
   const resetBtn = document.getElementById("reset-btn");
+  const hktClockEl = document.getElementById("hkt-clock");
+
+  const memoModeSelect = document.getElementById("memo-mode");
+  const memoTextInput = document.getElementById("memo-text");
+  const memoDelayWrapper = document.getElementById("memo-delay-wrapper");
+  const memoDelayMinsInput = document.getElementById("memo-delay-mins");
 
   let rowIdCounter = 0;
 
   const STORAGE_KEY = "fault_report_form_v1";
+
+  function startHktClock() {
+    if (!hktClockEl) return;
+    function update() {
+      const now = new Date();
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const s = now.getSeconds();
+      const hh = h < 10 ? "0" + h : String(h);
+      const mm = m < 10 ? "0" + m : String(m);
+      const ss = s < 10 ? "0" + s : String(s);
+      hktClockEl.textContent = hh + ":" + mm + ":" + ss;
+    }
+    update();
+    setInterval(update, 1000);
+  }
 
   function formatTime(totalMinutes) {
     const h = Math.floor(totalMinutes / 60);
@@ -168,6 +189,117 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  function applyMemoModeFromSelect() {
+    if (!memoModeSelect || !memoTextInput) return;
+
+    const mode = memoModeSelect.value;
+    const hasDelayControls = memoDelayWrapper && memoDelayMinsInput;
+
+    // Reset visibility / disabled states first
+    if (hasDelayControls) {
+      memoDelayWrapper.classList.add("hidden");
+    }
+
+    // Default: free text box off for canned modes
+    memoTextInput.disabled = true;
+
+    if (mode === "TBC") {
+      memoTextInput.value = "TBC";
+      memoTextInput.placeholder = "TBC";
+    } else if (mode === "NO_DELAY") {
+      memoTextInput.value = "No train delay";
+      memoTextInput.placeholder = "No train delay";
+    } else if (mode === "DELAY") {
+      // For delay mode, show dedicated numeric input and keep textbox read-only
+      if (hasDelayControls) {
+        memoDelayWrapper.classList.remove("hidden");
+        // If textbox doesn't already match the pattern, initialise it
+        const currentVal = memoTextInput.value.trim();
+        if (!/^Train delay \d+ mins$/.test(currentVal)) {
+          memoTextInput.value = "Train delay  mins";
+        }
+        memoTextInput.placeholder = "Train delay XX mins";
+        memoTextInput.disabled = true;
+
+        // Keep textbox synced when user changes the numeric field
+        memoDelayMinsInput.addEventListener("input", function () {
+          const raw = memoDelayMinsInput.value.replace(/[^0-9]/g, "");
+          memoDelayMinsInput.value = raw;
+          const mins = raw || "";
+          memoTextInput.value = mins ? "Train delay " + mins + " mins" : "Train delay  mins";
+        });
+      }
+    } else if (mode === "NO_INJURY") {
+      memoTextInput.value = "No passenger injury";
+      memoTextInput.placeholder = "No passenger injury";
+    } else if (mode === "NONE") {
+      memoTextInput.value = "";
+      memoTextInput.placeholder = "(已漏空)";
+    } else if (mode === "FREE") {
+      memoTextInput.disabled = false;
+      memoTextInput.placeholder = "手動輸入文字...";
+      if (
+        memoTextInput.value === "TBC" ||
+        memoTextInput.value === "No train delay" ||
+        memoTextInput.value === "No passenger injury" ||
+        /^Train delay \d+ mins$/.test(memoTextInput.value)
+      ) {
+        memoTextInput.value = "";
+      }
+    }
+
+    // Adjust height to fit content; works together with setupAutoResize
+    memoTextInput.style.height = "auto";
+    memoTextInput.style.height = memoTextInput.scrollHeight + "px";
+  }
+
+  function initMemoControls() {
+    if (!memoModeSelect || !memoTextInput) return;
+
+    memoModeSelect.addEventListener("change", applyMemoModeFromSelect);
+    applyMemoModeFromSelect();
+    setupAutoResize(memoTextInput);
+
+    if (memoDelayMinsInput) {
+      memoDelayMinsInput.addEventListener("focus", function () {
+        memoDelayMinsInput.select();
+      });
+    }
+  }
+
+  function getMemoExportText() {
+    if (!memoModeSelect || !memoTextInput) return "";
+
+    const mode = memoModeSelect.value;
+    const val = memoTextInput.value.trim();
+
+    if (mode === "NONE") {
+      // 無字: no last line in clipboard
+      return "";
+    }
+
+    if (mode === "DELAY") {
+      if (!memoDelayMinsInput) return "";
+      const mins = memoDelayMinsInput.value.replace(/[^0-9]/g, "");
+      if (!mins) return "";
+      return "Train delay " + mins + " mins";
+    }
+
+    // For the canned text modes, use fixed strings to avoid stray edits
+    if (mode === "TBC") {
+      return "TBC";
+    }
+    if (mode === "NO_DELAY") {
+      return "No train delay";
+    }
+    if (mode === "NO_INJURY") {
+      return "No passenger injury";
+    }
+
+    // FREE mode: whatever the user typed
+    return val;
+  }
+
   function clearAllOrderErrors() {
     const inputs = rowsContainer.querySelectorAll(".time-input");
     inputs.forEach(function (input) {
@@ -263,23 +395,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function hideAllRowActionPopups(except) {
+    const menus = document.querySelectorAll(".row-actions-popup");
+    menus.forEach(function (menu) {
+      if (menu !== except) {
+        menu.classList.add("hidden");
+      }
+    });
+  }
+
   function attachRowEvents(rowEl) {
     const timeInput = rowEl.querySelector(".time-input");
     const popup = rowEl.querySelector(".time-popup");
     const hourInput = rowEl.querySelector(".hour-input");
     const minuteInput = rowEl.querySelector(".minute-input");
-    const ampmSelect = rowEl.querySelector(".ampm-select");
-    const formatRadios = rowEl.querySelectorAll(".time-format-toggle input[type=radio]");
+    const ampmSelect = null;
+    const formatRadios = [];
     const okBtn = rowEl.querySelector(".time-ok-btn");
     const cancelBtn = rowEl.querySelector(".time-cancel-btn");
     const errorBox = rowEl.querySelector(".time-error");
     const moveRowBtn = rowEl.querySelector(".move-row-btn");
     const descInput = rowEl.querySelector(".desc-input");
+    const actionsPopup = rowEl.querySelector(".row-actions-popup");
+    const actionUpBtn = rowEl.querySelector(".row-action-up");
+    const actionDownBtn = rowEl.querySelector(".row-action-down");
+    const actionAddBelowBtn = rowEl.querySelector(".row-action-add-below");
+    const actionDeleteBtn = rowEl.querySelector(".row-action-delete");
+    const actionCancelBtn = rowEl.querySelector(".row-action-cancel");
 
     const radioName = "time-format-" + rowEl.dataset.rowId;
-    formatRadios.forEach(function (radio) {
-      radio.name = radioName;
-    });
 
     function showError(msg) {
       errorBox.textContent = msg;
@@ -296,25 +440,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getSelectedFormat() {
-      let mode = "24";
-      formatRadios.forEach(function (radio) {
-        if (radio.checked) {
-          mode = radio.value;
-        }
-      });
-      return mode;
+      return "24";
     }
 
     function setFormatMode(mode) {
-      if (mode === "12") {
-        hourInput.min = "1";
-        hourInput.max = "12";
-        ampmSelect.style.display = "inline-block";
-      } else {
-        hourInput.min = "0";
-        hourInput.max = "23";
-        ampmSelect.style.display = "none";
-      }
+      hourInput.min = "0";
+      hourInput.max = "23";
     }
 
     function initPopupFromCurrentValue() {
@@ -323,30 +454,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const mode = getSelectedFormat();
 
       if (current === null) {
-        if (mode === "24") {
-          hourInput.value = "";
-          minuteInput.value = "";
-        } else {
-          hourInput.value = "";
-          minuteInput.value = "";
-          ampmSelect.value = "AM";
-        }
+        hourInput.value = "";
+        minuteInput.value = "";
         return;
       }
 
       const h24 = Math.floor(current / 60);
       const m = current % 60;
 
-      if (mode === "24") {
-        hourInput.value = h24;
-        minuteInput.value = m;
-      } else {
-        let h12 = h24 % 12;
-        if (h12 === 0) h12 = 12;
-        hourInput.value = h12;
-        minuteInput.value = m;
-        ampmSelect.value = h24 >= 12 ? "PM" : "AM";
-      }
+      hourInput.value = h24;
+      minuteInput.value = m;
     }
 
     function readTimeFromPopup() {
@@ -365,27 +482,25 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       let h24;
-      if (mode === "24") {
-        if (hRaw < 0 || hRaw > 23) {
-          showError("時間無效，請重新輸入");
-          return null;
-        }
-        h24 = hRaw;
-      } else {
-        if (hRaw < 1 || hRaw > 12) {
-          showError("時間無效，請重新輸入");
-          return null;
-        }
-        const ampm = ampmSelect.value;
-        if (ampm === "AM") {
-          h24 = hRaw === 12 ? 0 : hRaw;
-        } else {
-          h24 = hRaw === 12 ? 12 : hRaw + 12;
-        }
+      if (hRaw < 0 || hRaw > 23) {
+        showError("時間無效，請重新輸入");
+        return null;
       }
+      h24 = hRaw;
 
       clearError();
       return h24 * 60 + mRaw;
+    }
+
+    function wireHourAutoAdvance() {
+      if (!hourInput || !minuteInput) return;
+      hourInput.addEventListener("input", function () {
+        const val = hourInput.value.trim();
+        if (val.length >= 2) {
+          minuteInput.focus();
+          minuteInput.select();
+        }
+      });
     }
 
     function showPopup() {
@@ -393,6 +508,10 @@ document.addEventListener("DOMContentLoaded", function () {
       popup.classList.remove("hidden");
       setFormatMode(getSelectedFormat());
       initPopupFromCurrentValue();
+      if (hourInput) {
+        hourInput.focus();
+        hourInput.select();
+      }
     }
 
     function hidePopup() {
@@ -405,12 +524,9 @@ document.addEventListener("DOMContentLoaded", function () {
       showPopup();
     });
 
-    formatRadios.forEach(function (radio) {
-      radio.addEventListener("change", function () {
-        setFormatMode(getSelectedFormat());
-        initPopupFromCurrentValue();
-      });
-    });
+    wireHourAutoAdvance();
+
+    // 24-hour format only; no radio toggle needed
 
     okBtn.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -428,45 +544,81 @@ document.addEventListener("DOMContentLoaded", function () {
       hidePopup();
     });
 
-    moveRowBtn.addEventListener("click", function () {
-      const input = window.prompt(
-        "請輸入操作:\nU = 向上\nD = 向下\nDelete = 刪除此列",
-        "U"
-      );
-      if (!input) return;
+    if (moveRowBtn) {
+      moveRowBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (!actionsPopup) return;
+        hideAllRowActionPopups(actionsPopup);
+        actionsPopup.classList.toggle("hidden");
+      });
+    }
 
-      const trimmed = input.trim();
-      const upper = trimmed.toUpperCase();
-      const lower = trimmed.toLowerCase();
-
-      if (lower === "delete") {
-        rowEl.remove();
-        validateTimeOrder();
-        updateExportButtonState();
-        return;
-      }
-
-      if (upper !== "U" && upper !== "D") {
-        window.alert("輸入無效，請輸入 U、D 或 Delete。");
-        return;
-      }
-
-      if (upper === "U") {
+    if (actionUpBtn) {
+      actionUpBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (actionsPopup) actionsPopup.classList.add("hidden");
         const prev = rowEl.previousElementSibling;
         if (!prev) {
           window.alert("已在最上方，無法再向上移動。");
           return;
         }
         swapRows(rowEl, prev, "up");
-      } else {
+      });
+    }
+
+    if (actionDownBtn) {
+      actionDownBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (actionsPopup) actionsPopup.classList.add("hidden");
         const next = rowEl.nextElementSibling;
         if (!next) {
           window.alert("已在最下方，無法再向下移動。");
           return;
         }
         swapRows(rowEl, next, "down");
-      }
-    });
+      });
+    }
+
+    if (actionAddBelowBtn) {
+      actionAddBelowBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (actionsPopup) actionsPopup.classList.add("hidden");
+
+        rowIdCounter += 1;
+        const fragment = rowTemplate.content.cloneNode(true);
+        const newRowEl = fragment.querySelector(".note-row");
+        newRowEl.dataset.rowId = String(rowIdCounter);
+
+        if (rowEl.nextSibling) {
+          rowsContainer.insertBefore(fragment, rowEl.nextSibling);
+        } else {
+          rowsContainer.appendChild(fragment);
+        }
+
+        attachRowEvents(newRowEl);
+        validateTimeOrder();
+        updateExportButtonState();
+      });
+    }
+
+    if (actionDeleteBtn) {
+      actionDeleteBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (actionsPopup) actionsPopup.classList.add("hidden");
+        const ok = window.confirm("確定要刪除此列嗎？");
+        if (!ok) return;
+        rowEl.remove();
+        validateTimeOrder();
+        updateExportButtonState();
+      });
+    }
+
+    if (actionCancelBtn) {
+      actionCancelBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (actionsPopup) actionsPopup.classList.add("hidden");
+      });
+    }
 
     if (descInput) {
       setupAutoResize(descInput);
@@ -501,7 +653,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const rowEl = fragment.querySelector(".note-row");
     rowEl.dataset.rowId = String(rowIdCounter);
     rowsContainer.appendChild(fragment);
-    attachRowEvents(rowsContainer.querySelector('.note-row:last-child'));
+    attachRowEvents(rowEl);
     updateExportButtonState();
   }
 
@@ -625,9 +777,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateExportButtonState();
   }
 
-  addRowBtn.addEventListener("click", function () {
-    createRow();
-  });
+  // 新增一行功能已移至齒輪選單中的「在下方新增一行」按鈕
 
   exportBtn.addEventListener("click", function () {
     if (hasAnyTimeError()) {
@@ -646,12 +796,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
     const lines = [];
 
+    let firstTime = "";
+
     rows.forEach(function (row) {
       const time = row.querySelector(".time-input").value.trim();
       const desc = row.querySelector(".desc-input").value.trim();
       if (!time && !desc) {
         return;
       }
+
+      if (!firstTime && time) {
+        firstTime = time;
+      }
+
       let processedDesc = desc.trim();
       if (processedDesc) {
         const lastChar = processedDesc.charAt(processedDesc.length - 1);
@@ -659,7 +816,7 @@ document.addEventListener("DOMContentLoaded", function () {
           processedDesc = processedDesc + ".";
         }
       }
-      const line = "At " + (time || "--:--") + " " + processedDesc;
+      const line = "At " + (time || "--:--") + (processedDesc ? " " + processedDesc : "");
       lines.push(line);
     });
 
@@ -668,7 +825,23 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const content = lines.join("\n");
+    let headerDate = "";
+    const startVals = getCurrentStartDateValues();
+    if (startVals && startVals.year && startVals.month && startVals.day) {
+      const y = startVals.year;
+      const m = String(startVals.month).padStart(2, "0");
+      const d = String(startVals.day).padStart(2, "0");
+      headerDate = y + "-" + m + "-" + d;
+    }
+
+    const headerLine = "Date: " + (headerDate || "----/--/--") + " Time: " + (firstTime || "--:--");
+
+    let content = headerLine + "\n\n" + lines.join("\n\n");
+
+    const memoExport = getMemoExportText();
+    if (memoExport) {
+      content += "\n\n" + memoExport;
+    }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
@@ -699,12 +872,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
     const lines = [];
 
+    let firstTime = "";
+
     rows.forEach(function (row) {
       const time = row.querySelector(".time-input").value.trim();
       const desc = row.querySelector(".desc-input").value.trim();
       if (!time && !desc) {
         return;
       }
+
+      if (!firstTime && time) {
+        firstTime = time;
+      }
+
       let processedDesc = desc.trim();
       if (processedDesc) {
         const lastChar = processedDesc.charAt(processedDesc.length - 1);
@@ -723,7 +903,17 @@ document.addEventListener("DOMContentLoaded", function () {
       lines.pop();
     }
 
-    return lines.join("\n");
+    let headerDate = "";
+    const startVals = getCurrentStartDateValues();
+    if (startVals && startVals.year && startVals.month && startVals.day) {
+      const y = startVals.year;
+      const m = String(startVals.month).padStart(2, "0");
+      const d = String(startVals.day).padStart(2, "0");
+      headerDate = y + "-" + m + "-" + d;
+    }
+
+    const headerLine = "Date: " + (headerDate || "----/--/--") + " Time: " + (firstTime || "--:--");
+    return headerLine + "\n\n" + lines.join("\n");
   }
 
   if (excelBtn) {
@@ -758,6 +948,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener("click", function (e) {
     const target = e.target;
+
+    if (!target.closest(".move-cell")) {
+      hideAllRowActionPopups(null);
+    }
+
     if (target.closest(".time-popup") || target.closest(".time-input")) {
       return;
     }
@@ -785,6 +980,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initStartDateSelectors();
 
+   initMemoControls();
+
   const restored = loadStateFromStorage();
   if (restored) {
     applyState(restored);
@@ -794,4 +991,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Autosave every 5 seconds
   setInterval(saveStateToStorage, 5000);
+
+  startHktClock();
 });

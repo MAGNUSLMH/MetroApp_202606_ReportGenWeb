@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>事件總結生成器</title>
+  <title>事件報表</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cactus+Classical+Serif&display=swap" rel="stylesheet">
@@ -13,7 +13,11 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>事件總結生成器</h1>
+      <div class="header-left">
+        <div class="hkt-time-label">TIME HKT</div>
+        <div id="hkt-clock" class="hkt-clock">--:--:--</div>
+      </div>
+    <h1>事件報表</h1>
     <button id="reset-btn" class="reset-btn" type="button" aria-label="清除並重設為預設狀態">🗑️</button>
   </header>
   <main class="app-main">
@@ -38,16 +42,55 @@
           </div>
           <div id="start-date-error" class="field-error hidden"></div>
         </div>
+        <div class="field-row">
+          <span class="field-label">事件</span>
+        </div>
       </div>
 
       <div class="note-header">
-        <div class="col-label move-col-label">移動</div>
+        <div class="col-label move-col-label"></div>
         <div class="col-label time-col-label">時間</div>
         <div class="col-label desc-col-label">描述</div>
       </div>
       <div id="rows-container" class="rows-container"></div>
+      <div class="memo-section">
+        <div class="field-row">
+          <label for="memo-mode" class="field-label">備注</label>
+        </div>
+        <div class="field-row">
+          <select id="memo-mode" class="memo-select">
+            <option value="TBC">TBC</option>
+            <option value="NO_DELAY">No train delay</option>
+            <option value="DELAY">Train delay XX mins</option>
+            <option value="NO_INJURY">No passenger injury</option>
+            <option value="NONE">無字</option>
+            <option value="FREE">手動輸入文字...</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <textarea
+            id="memo-text"
+            class="bottom-textarea"
+            rows="2"
+            placeholder="手動輸入文字..."
+          ></textarea>
+          <div id="memo-delay-wrapper" class="memo-delay-wrapper hidden">
+            <span class="memo-delay-label">Train delay</span>
+            <div class="memo-delay-input-row">
+              <input
+                id="memo-delay-mins"
+                class="memo-delay-input"
+                type="number"
+                min="0"
+                max="999"
+                inputmode="numeric"
+              />
+              <span class="memo-delay-suffix">mins</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="actions-row">
-        <button id="add-row-btn" class="primary-btn" type="button">新增一行</button>
         <button id="export-btn" class="secondary-btn" type="button">匯出文字檔</button>
       </div>
       <br>
@@ -80,21 +123,20 @@
     <div class="note-row">
       <div class="move-cell">
         <button type="button" class="move-row-btn" aria-label="設定此列（移動或刪除）">⚙</button>
+        <div class="row-actions-popup hidden">
+          <button type="button" class="row-action-btn row-action-up">向上</button>
+          <button type="button" class="row-action-btn row-action-down">向下</button>
+          <button type="button" class="row-action-btn row-action-add-below">向下加行</button>
+          <button type="button" class="row-action-btn row-action-delete">刪除</button>
+          <button type="button" class="row-action-btn row-action-cancel">取消</button>
+        </div>
       </div>
       <div class="time-cell">
-        <input type="text" class="time-input" placeholder="點擊設定" readonly>
+        <input type="text" class="time-input" placeholder="時間..." readonly>
         <div class="time-popup hidden">
-          <div class="time-format-toggle">
-            <label><input type="radio" value="24" checked>24小時制</label>
-            <label><input type="radio" value="12">12小時制</label>
-          </div>
           <div class="time-fields">
             <input type="number" class="hour-input" min="0" max="23" inputmode="numeric"> :
             <input type="number" class="minute-input" min="0" max="59" inputmode="numeric">
-            <select class="ampm-select">
-              <option value="AM">上午</option>
-              <option value="PM">下午</option>
-            </select>
           </div>
           <div class="time-popup-actions">
             <button type="button" class="time-ok-btn">確定</button>
