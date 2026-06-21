@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const rootCauseInput = document.getElementById("root-cause");
   const actionTakenInput = document.getElementById("action-taken");
   const resumeTimeInput = document.getElementById("resume-time");
+  const resumeTimeModeSelect = document.getElementById("resume-time-mode");
   const startDateYearSelect = document.getElementById("start-date-year");
   const startDateMonthSelect = document.getElementById("start-date-month");
   const startDateDaySelect = document.getElementById("start-date-day");
@@ -189,6 +190,56 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
+  function getBottommostEventTime() {
+    const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
+    for (let i = rows.length - 1; i >= 0; i -= 1) {
+      const row = rows[i];
+      const timeInputEl = row.querySelector(".time-input");
+      if (!timeInputEl) continue;
+      const val = timeInputEl.value.trim();
+      if (val) {
+        return val;
+      }
+    }
+    return "";
+  }
+
+  function applyResumeTimeModeFromSelect() {
+    if (!resumeTimeModeSelect || !resumeTimeInput) return;
+
+    const mode = resumeTimeModeSelect.value;
+
+    if (mode === "TBC") {
+      resumeTimeInput.disabled = true;
+      resumeTimeInput.placeholder = "TBC";
+      resumeTimeInput.value = "TBC";
+    } else if (mode === "RESOLVED") {
+      resumeTimeInput.disabled = true;
+      resumeTimeInput.placeholder = "Time in BOTTOMMOST RECORD";
+      const lastTime = getBottommostEventTime();
+      resumeTimeInput.value = lastTime || "";
+    } else {
+      // FREE
+      resumeTimeInput.disabled = false;
+      resumeTimeInput.placeholder = "手動輸入文字";
+      // Keep whatever user has typed
+    }
+
+    // Adjust height manually (setupAutoResize was already wired once at init)
+    resumeTimeInput.style.height = "auto";
+    resumeTimeInput.style.height = resumeTimeInput.scrollHeight + "px";
+  }
+
+  function syncResumeTimeAutoIfNeeded() {
+    if (!resumeTimeModeSelect || !resumeTimeInput) return;
+    if (resumeTimeModeSelect.value !== "RESOLVED") return;
+
+    const lastTime = getBottommostEventTime();
+    resumeTimeInput.value = lastTime || "";
+    resumeTimeInput.style.height = "auto";
+    resumeTimeInput.style.height = resumeTimeInput.scrollHeight + "px";
+  }
+
   function applyMemoModeFromSelect() {
     if (!memoModeSelect || !memoTextInput) return;
 
@@ -329,6 +380,7 @@ document.addEventListener("DOMContentLoaded", function () {
         lastTime = t;
       }
     });
+    syncResumeTimeAutoIfNeeded();
     updateExportButtonState();
   }
 
@@ -671,6 +723,7 @@ document.addEventListener("DOMContentLoaded", function () {
       rootCause: rootCauseInput ? rootCauseInput.value : "",
       actionTaken: actionTakenInput ? actionTakenInput.value : "",
       resumeTime: resumeTimeInput ? resumeTimeInput.value : "",
+      resumeTimeMode: resumeTimeModeSelect ? resumeTimeModeSelect.value : "TBC",
       startDate: getCurrentStartDateValues(),
       rows: rows,
     };
@@ -723,6 +776,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (actionTakenInput) setupAutoResize(actionTakenInput);
     if (resumeTimeInput) setupAutoResize(resumeTimeInput);
 
+    if (resumeTimeModeSelect) {
+      if (state.resumeTimeMode) {
+        resumeTimeModeSelect.value = state.resumeTimeMode;
+      }
+      applyResumeTimeModeFromSelect();
+    }
+
     validateTimeOrder();
     updateExportButtonState();
   }
@@ -772,27 +832,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if (rootCauseInput) setupAutoResize(rootCauseInput);
     if (actionTakenInput) setupAutoResize(actionTakenInput);
     if (resumeTimeInput) setupAutoResize(resumeTimeInput);
+    if (resumeTimeModeSelect) {
+      resumeTimeModeSelect.value = "TBC";
+      applyResumeTimeModeFromSelect();
+    }
 
     validateTimeOrder();
     updateExportButtonState();
   }
 
+  function initResumeTimeControls() {
+    if (!resumeTimeModeSelect || !resumeTimeInput) return;
+
+    resumeTimeModeSelect.addEventListener("change", applyResumeTimeModeFromSelect);
+    applyResumeTimeModeFromSelect();
+  }
+
   // 新增一行功能已移至齒輪選單中的「在下方新增一行」按鈕
 
-  exportBtn.addEventListener("click", function () {
-    if (hasAnyTimeError()) {
-      window.alert("請先修正所有時間錯誤，再進行匯出。");
-      updateExportButtonState();
-      return;
-    }
-
-    if (hasAnyTimeWarning()) {
-      window.alert(
-        "注意：時間順序存在警告（事件未完全按由早到晚排序）。" +
-          "\n\n系統仍會依目前順序產生文字。"
-      );
-    }
-
+  function buildExportClipboardContent() {
     const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
     const lines = [];
 
@@ -821,8 +879,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (lines.length === 0) {
-      window.alert("目前沒有可匯出的內容。");
-      return;
+      return null;
     }
 
     let headerDate = "";
@@ -834,13 +891,36 @@ document.addEventListener("DOMContentLoaded", function () {
       headerDate = y + "-" + m + "-" + d;
     }
 
-    const headerLine = "Date: " + (headerDate || "----/--/--") + " Time: " + (firstTime || "--:--");
+    const firstTimeText = lines.length ? lines[0].slice(3, 8) : "";
+    const headerLine = "Date: " + (headerDate || "----/--/--") + " Time: " + (firstTimeText || "--:--");
 
     let content = headerLine + "\n\n" + lines.join("\n\n");
 
     const memoExport = getMemoExportText();
     if (memoExport) {
       content += "\n\n" + memoExport;
+    }
+
+    return content;
+  }
+
+  exportBtn.addEventListener("click", function () {
+    if (hasAnyTimeError()) {
+      window.alert("請先修正所有時間錯誤，再進行匯出。");
+      updateExportButtonState();
+      return;
+    }
+
+    if (hasAnyTimeWarning()) {
+      window.alert(
+        "注意：時間順序存在警告（事件未完全按由早到晚排序）。" +
+          "\n\n系統仍會依目前順序產生文字。"
+      );
+    }
+    const content = buildExportClipboardContent();
+    if (!content) {
+      window.alert("目前沒有可匯出的內容。");
+      return;
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -858,6 +938,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const excelBtn = document.getElementById("excel-btn");
+  const whatsappBtn = document.getElementById("whatsapp-btn");
+  const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Hpseqf55gLrCsgoUtEtTn1?s=cl&p=a&mlu=0&ilr=0";
 
   function areSummaryFieldsFilled() {
     const fd = faultDescriptionInput ? faultDescriptionInput.value.trim() : "";
@@ -913,7 +995,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const headerLine = "Date: " + (headerDate || "----/--/--") + " Time: " + (firstTime || "--:--");
-    return headerLine + "\n\n" + lines.join("\n");
+    let content = headerLine + "\n\n" + lines.join("\n");
+
+    const memoExport = getMemoExportText();
+    if (memoExport) {
+      content += "\n\n" + memoExport;
+    }
+
+    return content;
   }
 
   if (excelBtn) {
@@ -932,6 +1021,44 @@ document.addEventListener("DOMContentLoaded", function () {
         window.downloadExcel();
       } else {
         window.alert("Excel 產生功能尚未載入。");
+      }
+    });
+  }
+
+  if (whatsappBtn) {
+    whatsappBtn.addEventListener("click", function () {
+      if (hasAnyTimeError()) {
+        window.alert("請先修正所有時間錯誤，再進行匯出。");
+        updateExportButtonState();
+        return;
+      }
+
+      if (hasAnyTimeWarning()) {
+        window.alert(
+          "注意：時間順序存在警告（事件未完全按由早到晚排序）。" +
+            "\n\n系統仍會依目前順序產生文字。"
+        );
+      }
+
+      const content = buildExportClipboardContent();
+      if (!content) {
+        window.alert("目前沒有可匯出的內容。");
+        return;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(content)
+          .then(function () {
+            window.open(WHATSAPP_GROUP_URL, "_blank");
+          })
+          .catch(function () {
+            window.open(WHATSAPP_GROUP_URL, "_blank");
+            window.alert("無法自動複製到剪貼簿，請在 WhatsApp 中手動貼上以下內容：\n\n" + content);
+          });
+      } else {
+        window.open(WHATSAPP_GROUP_URL, "_blank");
+        window.alert("請在 WhatsApp 中手動貼上以下內容：\n\n" + content);
       }
     });
   }
@@ -981,6 +1108,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initStartDateSelectors();
 
    initMemoControls();
+  initResumeTimeControls();
 
   const restored = loadStateFromStorage();
   if (restored) {

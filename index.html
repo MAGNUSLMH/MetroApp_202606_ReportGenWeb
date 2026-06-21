@@ -92,15 +92,18 @@
       </div>
       <div class="actions-row">
         <button id="export-btn" class="secondary-btn" type="button">匯出文字檔</button>
+        <button id="whatsapp-btn" class="secondary-btn whatsapp-btn" type="button">
+          <img src="whatsapp_icon.png" alt="WhatsApp" class="whatsapp-icon" width="30" height="30"> WhatsApp
+        </button>
       </div>
       <br>
       <div class="bottom-fields">
         <div class="field-row">
-          <label for="finding" class="emphasis-label">Finding</label>
+          <label for="finding" class="emphasis-label">Finding (發現)</label>
           <textarea id="finding" class="bottom-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
-          <label for="root-cause" class="emphasis-label">Root Cause</label>
+          <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
           <textarea id="root-cause" class="bottom-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
@@ -109,7 +112,17 @@
         </div>
         <div class="field-row">
           <label for="resume-time" class="emphasis-label">Resume time</label>
-          <textarea id="resume-time" class="bottom-textarea" rows="2"></textarea>
+          <select id="resume-time-mode" class="memo-select">
+            <option value="TBC">TBC</option>
+            <option value="RESOLVED">回復時間</option>
+            <option value="FREE">手動輸入文字</option>
+          </select>
+          <textarea
+            id="resume-time"
+            class="bottom-textarea"
+            rows="2"
+            placeholder="手動輸入文字"
+          ></textarea>
         </div>
       </div>
       <div class="excel-row">
@@ -122,7 +135,7 @@
   <template id="row-template">
     <div class="note-row">
       <div class="move-cell">
-        <button type="button" class="move-row-btn" aria-label="設定此列（移動或刪除）">⚙</button>
+        <button type="button" class="move-row-btn" aria-label="設定此列（移動或刪除）">⚙️</button>
         <div class="row-actions-popup hidden">
           <button type="button" class="row-action-btn row-action-up">向上</button>
           <button type="button" class="row-action-btn row-action-down">向下</button>
