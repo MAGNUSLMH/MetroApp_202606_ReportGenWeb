@@ -16,10 +16,20 @@ document.addEventListener("DOMContentLoaded", function () {
   const resetBtn = document.getElementById("reset-btn");
   const hktClockEl = document.getElementById("hkt-clock");
 
+  const reportMain = document.getElementById("report-main");
+  const translateMain = document.getElementById("translate-main");
+  const feedbackMain = document.getElementById("feedback-main");
+  const footerTabs = document.querySelectorAll(".footer-tab");
+
   const memoModeSelect = document.getElementById("memo-mode");
   const memoTextInput = document.getElementById("memo-text");
   const memoDelayWrapper = document.getElementById("memo-delay-wrapper");
   const memoDelayMinsInput = document.getElementById("memo-delay-mins");
+
+  const englishOriginalInput = document.getElementById("english-original");
+  const englishEditedInput = document.getElementById("english-edited");
+
+  const googleTranslateButtons = document.querySelectorAll(".google-translate-btn");
 
   let rowIdCounter = 0;
 
@@ -456,6 +466,49 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function showTab(name) {
+    if (!reportMain || !translateMain || !feedbackMain) {
+      return;
+    }
+
+    const map = {
+      report: reportMain,
+      translate: translateMain,
+      feedback: feedbackMain,
+    };
+
+    // remember which tab was active before change
+    const previousActiveTab = Array.from(footerTabs || []).find(function (tab) {
+      return tab.classList.contains("footer-tab-active");
+    });
+
+    Object.keys(map).forEach(function (key) {
+      const section = map[key];
+      if (!section) return;
+      if (key === name) {
+        section.classList.remove("hidden");
+      } else {
+        section.classList.add("hidden");
+      }
+    });
+
+    footerTabs.forEach(function (tab) {
+      // reset animation classes so they can be re-applied
+      tab.classList.remove("footer-tab-pop-in", "footer-tab-pop-out");
+
+      if (tab.dataset && tab.dataset.tab === name) {
+        tab.classList.add("footer-tab-active");
+        tab.classList.add("footer-tab-pop-in");
+      } else {
+        const wasActive = tab.classList.contains("footer-tab-active");
+        tab.classList.remove("footer-tab-active");
+        if (wasActive && tab === previousActiveTab) {
+          tab.classList.add("footer-tab-pop-out");
+        }
+      }
+    });
+  }
+
   function attachRowEvents(rowEl) {
     const timeInput = rowEl.querySelector(".time-input");
     const popup = rowEl.querySelector(".time-popup");
@@ -806,6 +859,56 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function openGoogleTranslateWithText(text) {
+    if (!text) return;
+    const baseUrl = "https://translate.google.com/";
+    const params = new URLSearchParams({
+      sl: "auto",
+      tl: "en",
+      text: text,
+      op: "translate",
+    });
+    const url = baseUrl + "?" + params.toString();
+    window.open(url, "_blank");
+  }
+
+  function initGoogleTranslateButtons() {
+    if (!googleTranslateButtons || !googleTranslateButtons.length) return;
+
+    googleTranslateButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const target = btn.dataset ? btn.dataset.translateTarget : null;
+        let text = "";
+
+        if (!target) return;
+
+        if (target === "fault-description" && faultDescriptionInput) {
+          text = faultDescriptionInput.value.trim();
+        } else if (target === "finding" && findingInput) {
+          text = findingInput.value.trim();
+        } else if (target === "root-cause" && rootCauseInput) {
+          text = rootCauseInput.value.trim();
+        } else if (target === "action-taken" && actionTakenInput) {
+          text = actionTakenInput.value.trim();
+        } else if (target === "sequence") {
+          const seqText = buildExportClipboardContent();
+          if (seqText) {
+            text = seqText;
+          }
+        } else if (target === "resume-time" && resumeTimeInput) {
+          text = resumeTimeInput.value.trim();
+        }
+
+        if (!text) {
+          window.alert("目前沒有可翻譯的內容。");
+          return;
+        }
+
+        openGoogleTranslateWithText(text);
+      });
+    });
+  }
+
   function resetToDefaultState() {
     // Clear storage first so autosave does not immediately restore old content
     try {
@@ -1086,6 +1189,20 @@ document.addEventListener("DOMContentLoaded", function () {
     hideAllPopups(null);
   });
 
+  if (typeof showTab === "function") {
+    if (footerTabs && footerTabs.length) {
+      footerTabs.forEach(function (tab) {
+        const targetTab = tab.dataset ? tab.dataset.tab : null;
+        tab.addEventListener("click", function () {
+          showTab(targetTab || "report");
+        });
+      });
+      showTab("report");
+    } else {
+      showTab("report");
+    }
+  }
+
   createRow();
   createRow();
   createRow();
@@ -1104,11 +1221,18 @@ document.addEventListener("DOMContentLoaded", function () {
   if (resumeTimeInput) {
     setupAutoResize(resumeTimeInput);
   }
+  if (englishOriginalInput) {
+    setupAutoResize(englishOriginalInput);
+  }
+  if (englishEditedInput) {
+    setupAutoResize(englishEditedInput);
+  }
 
   initStartDateSelectors();
 
-   initMemoControls();
+  initMemoControls();
   initResumeTimeControls();
+  initGoogleTranslateButtons();
 
   const restored = loadStateFromStorage();
   if (restored) {

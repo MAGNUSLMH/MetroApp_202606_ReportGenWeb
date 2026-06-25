@@ -20,15 +20,29 @@
     <h1>事件報表</h1>
     <button id="reset-btn" class="reset-btn" type="button" aria-label="清除並重設為預設狀態">🗑️</button>
   </header>
-  <main class="app-main">
+  <main id="report-main" class="app-main">
     <section class="note-container">
       <div class="top-fields">
         <div class="field-row">
-          <label for="fault-description" class="emphasis-label">Fault Description</label>
+          <div class="field-label-row">
+            <label for="fault-description" class="emphasis-label">Fault Description</label>
+            <button
+              type="button"
+              class="google-translate-btn"
+              data-translate-target="fault-description"
+            >Google Translate</button>
+          </div>
           <textarea id="fault-description" class="top-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
-          <span class="emphasis-label">Sequency of event</span>
+          <div class="field-label-row">
+            <span class="emphasis-label">Sequency of event</span>
+            <button
+              type="button"
+              class="google-translate-btn"
+              data-translate-target="sequence"
+            >Google Translate</button>
+          </div>
         </div>
         <div class="field-row">
           <label class="field-label" for="start-date-year">開始日期</label>
@@ -99,19 +113,47 @@
       <br>
       <div class="bottom-fields">
         <div class="field-row">
-          <label for="finding" class="emphasis-label">Finding (發現)</label>
+          <div class="field-label-row">
+            <label for="finding" class="emphasis-label">Finding (發現)</label>
+            <button
+              type="button"
+              class="google-translate-btn"
+              data-translate-target="finding"
+            >Google Translate</button>
+          </div>
           <textarea id="finding" class="bottom-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
-          <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
+          <div class="field-label-row">
+            <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
+            <button
+              type="button"
+              class="google-translate-btn"
+              data-translate-target="root-cause"
+            >Google Translate</button>
+          </div>
           <textarea id="root-cause" class="bottom-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
-          <label for="action-taken" class="emphasis-label">Action Taken</label>
+          <div class="field-label-row">
+            <label for="action-taken" class="emphasis-label">Action Taken</label>
+            <button
+              type="button"
+              class="google-translate-btn"
+              data-translate-target="action-taken"
+            >Google Translate</button>
+          </div>
           <textarea id="action-taken" class="bottom-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
-          <label for="resume-time" class="emphasis-label">Resume time</label>
+          <div class="field-label-row">
+            <label for="resume-time" class="emphasis-label">Resume time</label>
+            <button
+              type="button"
+              class="google-translate-btn"
+              data-translate-target="resume-time"
+            >Google Translate</button>
+          </div>
           <select id="resume-time-mode" class="memo-select">
             <option value="TBC">TBC</option>
             <option value="RESOLVED">回復時間</option>
@@ -131,6 +173,43 @@
       <textarea id="sequence" hidden></textarea>
     </section>
   </main>
+
+  <main id="translate-main" class="app-main hidden">
+    <section class="note-container translate-container">
+      <h2 class="subheading">英文修改</h2>
+      <div class="field-row">
+        <label for="english-original" class="field-label">原本英文文字</label>
+        <textarea id="english-original" class="bottom-textarea english-textarea" rows="6"></textarea>
+      </div>
+      <div class="field-row">
+        <label for="english-edited" class="field-label">修改後英文文字</label>
+        <textarea id="english-edited" class="bottom-textarea english-textarea" rows="6"></textarea>
+      </div>
+    </section>
+  </main>
+
+  <main id="feedback-main" class="app-main hidden">
+    <section class="note-container feedback-container">
+      <h2 class="subheading">提供翻譯反饋</h2>
+      <p class="feedback-text">如翻譯有問題，請在此記錄並於 WhatsApp 匯報。</p>
+      <textarea id="feedback-notes" class="bottom-textarea" rows="3"></textarea>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <button type="button" class="footer-tab footer-tab-active" data-tab="report">
+      <span class="footer-emoji" aria-hidden="true">📋</span>
+      <span class="footer-label">事件報表</span>
+    </button>
+    <button type="button" class="footer-tab" data-tab="translate">
+      <span class="footer-emoji" aria-hidden="true">✏️</span>
+      <span class="footer-label">英文修改</span>
+    </button>
+    <button type="button" class="footer-tab" data-tab="feedback">
+      <span class="footer-emoji" aria-hidden="true">💬</span>
+      <span class="footer-label">提供翻譯反饋</span>
+    </button>
+  </footer>
 
   <template id="row-template">
     <div class="note-row">
