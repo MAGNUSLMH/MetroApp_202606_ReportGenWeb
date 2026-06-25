@@ -745,6 +745,54 @@ textarea {
   min-height: 40vh;
 }
 
+.translate-button-row {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+
+.translate-btn {
+  padding: 8px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: none;
+  background-image: linear-gradient(135deg, #e0f2ff, #3b82f6);
+  color: #0b1020;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, opacity 0.12s ease-out;
+}
+
+.translate-btn:hover {
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.45);
+}
+
+.translate-btn:active {
+  transform: scale(0.97);
+}
+
+.translate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.translate-btn-animating {
+  animation: translate-btn-bounce 0.35s ease-out;
+}
+
+@keyframes translate-btn-bounce {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.94);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @media (max-width: 600px) {
   .note-container {
     padding: 8px;

@@ -28,12 +28,116 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const englishOriginalInput = document.getElementById("english-original");
   const englishEditedInput = document.getElementById("english-edited");
+  const englishTranslateBtn = document.getElementById("english-translate-btn");
 
   const googleTranslateButtons = document.querySelectorAll(".google-translate-btn");
 
   let rowIdCounter = 0;
 
   const STORAGE_KEY = "fault_report_form_v1";
+
+  async function translateReport(rawText) {
+    try {
+      // Step 1: Submit the text to the modern Gradio queue endpoint
+      const initResponse = await fetch("https://magnuslmh-t5-finet-01.hf.space/gradio_api/call/translate_and_standardize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ data: ["standardize: " + rawText] }),
+        credentials: "omit" // Crucial: Bypasses the browser's CORS preflight credentials mismatch error
+      });
+
+      if (!initResponse.ok) {
+        throw new Error(`Queue submission failed with status ${initResponse.status}`);
+      }
+
+      const initData = await initResponse.json();
+      const eventId = initData.event_id;
+      if (!eventId) {
+        throw new Error("Did not receive a valid event_id from the prediction queue.");
+      }
+
+      // Step 2: Fetch the live output stream directly using the event token
+      const streamResponse = await fetch(`https://magnuslmh-t5-finet-01.hf.space/gradio_api/call/translate_and_standardize/${eventId}`, {
+        method: "GET",
+        credentials: "omit"
+      });
+
+      if (!streamResponse.ok) {
+        throw new Error(`Stream retrieval failed with status ${streamResponse.status}`);
+      }
+
+      // Because text generation is fast, we can safely wait for the stream connection to complete
+      const streamText = await streamResponse.text();
+
+      // Look for the completion payload in the Server-Sent Events stream
+      const completeMarker = "event: complete\ndata: ";
+      let startIndex = streamText.indexOf(completeMarker);
+      let jsonLine = "";
+
+      if (startIndex !== -1) {
+        jsonLine = streamText.substring(startIndex + completeMarker.length).split("\n")[0].trim();
+      } else {
+        // Fallback fallback for systems utilizing carriage returns (\r\n)
+        const altMarker = "event: complete\r\ndata: ";
+        startIndex = streamText.indexOf(altMarker);
+        if (startIndex === -1) {
+          console.error("Raw stream response chunk:", streamText);
+          throw new Error("Could not find the completion marker in the response stream.");
+        }
+        jsonLine = streamText.substring(startIndex + altMarker.length).split("\r")[0].trim();
+      }
+
+      const resultData = JSON.parse(jsonLine);
+      if (Array.isArray(resultData) && resultData.length > 0) {
+        console.log("Standardized Output:", resultData[0]);
+        return resultData[0];
+      } else {
+        throw new Error("Unexpected data format returned by the stream.");
+      }
+
+    } catch (error) {
+      console.error("Translation service error:", error);
+      throw new Error("翻譯服務回應錯誤: " + error.message);
+    }
+  }
+  
+  // Old 20260625
+  /*async function translateReport(rawText) {
+    // Call local PHP proxy to reach the Hugging Face backend.
+    // Works from your own domain without CORS issues.
+    const response = await fetch("translate_proxy.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: rawText }),
+      credentials: "same-origin",
+    });
+
+    // Read raw text first so we can handle non-JSON (e.g. PHP error page) gracefully
+    const raw = await response.text().catch(function () {
+      return "";
+    });
+
+    if (!response.ok) {
+      throw new Error("翻譯服務回應錯誤 (" + response.status + ") " + raw);
+    }
+
+    let payload = null;
+    try {
+      payload = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.error("translate_proxy.php returned non-JSON response:", raw);
+      throw new Error("翻譯服務回傳非 JSON 內容，請聯絡系統管理員。");
+    }
+
+    // Expect Gradio-style JSON from the Space: { data: ["standardized text", ...] }
+    const standardized = payload && Array.isArray(payload.data) ? payload.data[0] : "";
+    console.log("Standardized Output:", standardized);
+    return standardized;
+  }*/
 
   function startHktClock() {
     if (!hktClockEl) return;
@@ -909,6 +1013,38 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function initEnglishTranslate() {
+    if (!englishTranslateBtn || !englishOriginalInput || !englishEditedInput) return;
+
+    englishTranslateBtn.addEventListener("click", async function () {
+      const raw = englishOriginalInput.value.trim();
+      if (!raw) {
+        window.alert("請先在上方輸入英文文字。");
+        return;
+      }
+
+      englishTranslateBtn.disabled = true;
+      englishTranslateBtn.classList.add("translate-btn-animating");
+
+      try {
+        const standardized = await translateReport(raw);
+        englishEditedInput.value = standardized || "";
+        // trigger auto-resize on the edited box
+        englishEditedInput.style.height = "auto";
+        englishEditedInput.style.height = englishEditedInput.scrollHeight + "px";
+      } catch (err) {
+        console.error(err);
+        window.alert("翻譯服務目前無法使用，請稍後再試。");
+      } finally {
+        englishTranslateBtn.disabled = false;
+        // allow re-triggering the animation next click
+        setTimeout(function () {
+          englishTranslateBtn.classList.remove("translate-btn-animating");
+        }, 200);
+      }
+    });
+  }
+
   function resetToDefaultState() {
     // Clear storage first so autosave does not immediately restore old content
     try {
@@ -1233,6 +1369,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initMemoControls();
   initResumeTimeControls();
   initGoogleTranslateButtons();
+  initEnglishTranslate();
 
   const restored = loadStateFromStorage();
   if (restored) {
