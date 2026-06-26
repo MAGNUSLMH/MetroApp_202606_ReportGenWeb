@@ -19,7 +19,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const reportMain = document.getElementById("report-main");
   const translateMain = document.getElementById("translate-main");
   const feedbackMain = document.getElementById("feedback-main");
+  const feedbackNotesInput = document.getElementById("feedback-notes");
   const footerTabs = document.querySelectorAll(".footer-tab");
+  const pageTitleTextEl = document.getElementById("page-title-text");
+  const appFooter = document.querySelector(".app-footer");
 
   const memoModeSelect = document.getElementById("memo-mode");
   const memoTextInput = document.getElementById("memo-text");
@@ -27,117 +30,75 @@ document.addEventListener("DOMContentLoaded", function () {
   const memoDelayMinsInput = document.getElementById("memo-delay-mins");
 
   const englishOriginalInput = document.getElementById("english-original");
+  const englishGoogleInput = document.getElementById("english-google");
   const englishEditedInput = document.getElementById("english-edited");
   const englishTranslateBtn = document.getElementById("english-translate-btn");
 
+  const selectFirstTranslateBtn = document.getElementById("select-first-translate-btn");
+  const selectSecondTranslateBtn = document.getElementById("select-second-translate-btn");
+  const translateTargetIndicatorInput = document.getElementById("translate-target-indicator");
+
   const googleTranslateButtons = document.querySelectorAll(".google-translate-btn");
+  const goTranslateButtons = document.querySelectorAll(".go-translate-btn");
 
   let rowIdCounter = 0;
 
+   // Global pointer to remember which textbox should be updated
+  let currentTranslateTargetTextarea = null;
+  let currentTranslateTargetLabel = "";
+
   const STORAGE_KEY = "fault_report_form_v1";
 
+  // Call local PHP proxy, which forwards to the external translation API
+  // (Traditional Chinese -> English). Returns the translated English text.
   async function translateReport(rawText) {
     try {
-      // Step 1: Submit the text to the modern Gradio queue endpoint
-      const initResponse = await fetch("https://magnuslmh-t5-finet-01.hf.space/gradio_api/call/translate_and_standardize", {
+      const response = await fetch("translate_proxy.php", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: ["standardize: " + rawText] }),
-        credentials: "omit" // Crucial: Bypasses the browser's CORS preflight credentials mismatch error
+        body: JSON.stringify({ text: rawText }),
+        credentials: "same-origin",
       });
 
-      if (!initResponse.ok) {
-        throw new Error(`Queue submission failed with status ${initResponse.status}`);
-      }
-
-      const initData = await initResponse.json();
-      const eventId = initData.event_id;
-      if (!eventId) {
-        throw new Error("Did not receive a valid event_id from the prediction queue.");
-      }
-
-      // Step 2: Fetch the live output stream directly using the event token
-      const streamResponse = await fetch(`https://magnuslmh-t5-finet-01.hf.space/gradio_api/call/translate_and_standardize/${eventId}`, {
-        method: "GET",
-        credentials: "omit"
+      // Read raw text first so we can handle non-JSON (e.g. PHP error page) gracefully
+      const raw = await response.text().catch(function () {
+        return "";
       });
 
-      if (!streamResponse.ok) {
-        throw new Error(`Stream retrieval failed with status ${streamResponse.status}`);
+      if (!response.ok) {
+        throw new Error("翻譯服務回應錯誤 (" + response.status + ") " + raw);
       }
 
-      // Because text generation is fast, we can safely wait for the stream connection to complete
-      const streamText = await streamResponse.text();
-
-      // Look for the completion payload in the Server-Sent Events stream
-      const completeMarker = "event: complete\ndata: ";
-      let startIndex = streamText.indexOf(completeMarker);
-      let jsonLine = "";
-
-      if (startIndex !== -1) {
-        jsonLine = streamText.substring(startIndex + completeMarker.length).split("\n")[0].trim();
-      } else {
-        // Fallback fallback for systems utilizing carriage returns (\r\n)
-        const altMarker = "event: complete\r\ndata: ";
-        startIndex = streamText.indexOf(altMarker);
-        if (startIndex === -1) {
-          console.error("Raw stream response chunk:", streamText);
-          throw new Error("Could not find the completion marker in the response stream.");
-        }
-        jsonLine = streamText.substring(startIndex + altMarker.length).split("\r")[0].trim();
+      let payload = null;
+      try {
+        payload = raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.error("translate_proxy.php returned non-JSON response:", raw);
+        throw new Error("翻譯服務回傳非 JSON 內容，請聯絡系統管理員。");
       }
 
-      const resultData = JSON.parse(jsonLine);
-      if (Array.isArray(resultData) && resultData.length > 0) {
-        console.log("Standardized Output:", resultData[0]);
-        return resultData[0];
-      } else {
-        throw new Error("Unexpected data format returned by the stream.");
+      if (!payload || typeof payload !== "object") {
+        throw new Error("翻譯服務回傳格式錯誤，請聯絡系統管理員。");
       }
 
+      if (payload.error) {
+        throw new Error("翻譯服務錯誤: " + payload.error);
+      }
+
+      const translated = payload.translated || "";
+      if (!translated) {
+        throw new Error("翻譯服務沒有回傳翻譯結果。");
+      }
+
+      console.log("Translated Output:", translated);
+      return translated;
     } catch (error) {
       console.error("Translation service error:", error);
       throw new Error("翻譯服務回應錯誤: " + error.message);
     }
   }
-  
-  // Old 20260625
-  /*async function translateReport(rawText) {
-    // Call local PHP proxy to reach the Hugging Face backend.
-    // Works from your own domain without CORS issues.
-    const response = await fetch("translate_proxy.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: rawText }),
-      credentials: "same-origin",
-    });
-
-    // Read raw text first so we can handle non-JSON (e.g. PHP error page) gracefully
-    const raw = await response.text().catch(function () {
-      return "";
-    });
-
-    if (!response.ok) {
-      throw new Error("翻譯服務回應錯誤 (" + response.status + ") " + raw);
-    }
-
-    let payload = null;
-    try {
-      payload = raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      console.error("translate_proxy.php returned non-JSON response:", raw);
-      throw new Error("翻譯服務回傳非 JSON 內容，請聯絡系統管理員。");
-    }
-
-    // Expect Gradio-style JSON from the Space: { data: ["standardized text", ...] }
-    const standardized = payload && Array.isArray(payload.data) ? payload.data[0] : "";
-    console.log("Standardized Output:", standardized);
-    return standardized;
-  }*/
 
   function startHktClock() {
     if (!hktClockEl) return;
@@ -153,6 +114,39 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     update();
     setInterval(update, 1000);
+  }
+
+  // On mobile browsers, the viewport can shrink when the software keyboard
+  // appears. To avoid the fixed footer visually jumping upward, we hide it
+  // while an input/textarea/select is focused and restore it on blur.
+  function initFooterKeyboardBehavior() {
+    if (!appFooter) return;
+
+    // Only apply this behavior on narrow viewports where mobile usage
+    // is more likely.
+    const isProbablyMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+    if (!isProbablyMobile) return;
+
+    function maybeHideFooter(target) {
+      if (!target) return;
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        appFooter.classList.add("footer-hide-when-keyboard");
+      }
+    }
+
+    function restoreFooter() {
+      appFooter.classList.remove("footer-hide-when-keyboard");
+    }
+
+    document.addEventListener("focusin", function (e) {
+      maybeHideFooter(e.target);
+    });
+
+    document.addEventListener("focusout", function () {
+      // small delay so that switching focus between fields does not flicker
+      setTimeout(restoreFooter, 50);
+    });
   }
 
   function formatTime(totalMinutes) {
@@ -182,6 +176,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     textarea.addEventListener("input", resize);
     resize();
+  }
+
+  function updateTranslateTargetIndicator() {
+    if (!translateTargetIndicatorInput) return;
+
+    if (!currentTranslateTargetTextarea) {
+      translateTargetIndicatorInput.value = "尚未選擇要更新的欄位";
+    } else {
+      translateTargetIndicatorInput.value = "目前將更新欄位：\n" + currentTranslateTargetLabel;
+    }
+
+    translateTargetIndicatorInput.style.height = "auto";
+    translateTargetIndicatorInput.style.height = translateTargetIndicatorInput.scrollHeight + "px";
+  }
+
+  function setTranslateTarget(textarea, label) {
+    currentTranslateTargetTextarea = textarea || null;
+    currentTranslateTargetLabel = textarea ? (label || "（未命名欄位）") : "";
+
+    // also expose on window for easier debugging / global access if needed
+    try {
+      window.currentTranslateTargetTextarea = currentTranslateTargetTextarea;
+      window.currentTranslateTargetLabel = currentTranslateTargetLabel;
+    } catch (e) {}
+
+    updateTranslateTargetIndicator();
   }
 
   function isValidDateNumeric(year, month, day) {
@@ -570,6 +590,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function updatePageTitle(name) {
+    if (!pageTitleTextEl) return;
+    if (name === "report") {
+      pageTitleTextEl.textContent = "事件報表";
+    } else if (name === "translate") {
+      pageTitleTextEl.textContent = "英語翻譯";
+    } else if (name === "feedback") {
+      pageTitleTextEl.textContent = "提供翻譯反饋";
+    }
+  }
+
   function showTab(name) {
     if (!reportMain || !translateMain || !feedbackMain) {
       return;
@@ -611,6 +642,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     });
+
+    updatePageTitle(name);
   }
 
   function attachRowEvents(rowEl) {
@@ -631,6 +664,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const actionAddBelowBtn = rowEl.querySelector(".row-action-add-below");
     const actionDeleteBtn = rowEl.querySelector(".row-action-delete");
     const actionCancelBtn = rowEl.querySelector(".row-action-cancel");
+    const actionGoTranslateBtn = rowEl.querySelector(".row-action-go-translate");
 
     const radioName = "time-format-" + rowEl.dataset.rowId;
 
@@ -810,6 +844,58 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    if (actionGoTranslateBtn) {
+      actionGoTranslateBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (actionsPopup) actionsPopup.classList.add("hidden");
+
+        let targetTextarea = null;
+        let label = "";
+        let text = "";
+
+        const row = rowEl;
+        if (row) {
+          const desc = row.querySelector(".desc-input");
+          if (desc) {
+            targetTextarea = desc;
+            const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
+            const index = rows.indexOf(row) + 1;
+            if (index > 0) {
+              label = "事件記錄第 " + index + " 行的描述欄";
+            } else {
+              label = "事件記錄的描述欄";
+            }
+            text = desc.value.trim();
+          }
+        }
+
+        if (targetTextarea) {
+          setTranslateTarget(targetTextarea, label);
+        } else {
+          setTranslateTarget(null, "");
+        }
+
+        if (!text) {
+          window.alert("目前沒有可翻譯的內容。");
+          return;
+        }
+
+        if (englishOriginalInput) {
+          englishOriginalInput.value = text;
+          englishOriginalInput.style.height = "auto";
+          englishOriginalInput.style.height = englishOriginalInput.scrollHeight + "px";
+        }
+
+        if (typeof showTab === "function") {
+          showTab("translate");
+        }
+
+        if (englishOriginalInput) {
+          englishOriginalInput.focus();
+        }
+      });
+    }
+
     if (actionDeleteBtn) {
       actionDeleteBtn.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -962,64 +1048,132 @@ document.addEventListener("DOMContentLoaded", function () {
       return null;
     }
   }
-
-  function openGoogleTranslateWithText(text) {
-    if (!text) return;
-    const baseUrl = "https://translate.google.com/";
-    const params = new URLSearchParams({
-      sl: "auto",
-      tl: "en",
-      text: text,
-      op: "translate",
-    });
-    const url = baseUrl + "?" + params.toString();
-    window.open(url, "_blank");
-  }
-
   function initGoogleTranslateButtons() {
-    if (!googleTranslateButtons || !googleTranslateButtons.length) return;
+    if (!englishOriginalInput) return;
 
-    googleTranslateButtons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const target = btn.dataset ? btn.dataset.translateTarget : null;
-        let text = "";
+    function sendToEnglishOriginal(text) {
+      if (!text) return;
+      englishOriginalInput.value = text;
+      // Adjust height to fit new content
+      englishOriginalInput.style.height = "auto";
+      englishOriginalInput.style.height = englishOriginalInput.scrollHeight + "px";
 
-        if (!target) return;
+      if (typeof showTab === "function") {
+        showTab("translate");
+      }
+      englishOriginalInput.focus();
+    }
 
-        if (target === "fault-description" && faultDescriptionInput) {
-          text = faultDescriptionInput.value.trim();
-        } else if (target === "finding" && findingInput) {
-          text = findingInput.value.trim();
-        } else if (target === "root-cause" && rootCauseInput) {
-          text = rootCauseInput.value.trim();
-        } else if (target === "action-taken" && actionTakenInput) {
-          text = actionTakenInput.value.trim();
-        } else if (target === "sequence") {
-          const seqText = buildExportClipboardContent();
-          if (seqText) {
-            text = seqText;
+    if (googleTranslateButtons && googleTranslateButtons.length) {
+      googleTranslateButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const target = btn.dataset ? btn.dataset.translateTarget : null;
+          let text = "";
+          let targetTextarea = null;
+          let label = "";
+
+          if (!target) return;
+
+          if (target === "fault-description" && faultDescriptionInput) {
+            targetTextarea = faultDescriptionInput;
+            label = "Fault Description";
+            text = faultDescriptionInput.value.trim();
+          } else if (target === "finding" && findingInput) {
+            targetTextarea = findingInput;
+            label = "Finding (發現)";
+            text = findingInput.value.trim();
+          } else if (target === "root-cause" && rootCauseInput) {
+            targetTextarea = rootCauseInput;
+            label = "Root Cause (原因)";
+            text = rootCauseInput.value.trim();
+          } else if (target === "action-taken" && actionTakenInput) {
+            targetTextarea = actionTakenInput;
+            label = "Action Taken";
+            text = actionTakenInput.value.trim();
+          } else if (target === "sequence") {
+            const seqText = buildExportClipboardContent();
+            if (seqText) {
+              text = seqText;
+            }
+          } else if (target === "resume-time" && resumeTimeInput) {
+            targetTextarea = resumeTimeInput;
+            label = "Resume time";
+            text = resumeTimeInput.value.trim();
           }
-        } else if (target === "resume-time" && resumeTimeInput) {
-          text = resumeTimeInput.value.trim();
-        }
 
-        if (!text) {
-          window.alert("目前沒有可翻譯的內容。");
-          return;
-        }
+          // Record which textbox should be updated later, even if there is
+          // currently no text to translate.
+          if (targetTextarea) {
+            setTranslateTarget(targetTextarea, label);
+          } else {
+            setTranslateTarget(null, "");
+          }
 
-        openGoogleTranslateWithText(text);
+          if (!text) {
+            window.alert("目前沒有可翻譯的內容。");
+            return;
+          }
+
+          sendToEnglishOriginal(text);
+        });
       });
-    });
+    }
+
+    if (goTranslateButtons && goTranslateButtons.length) {
+      goTranslateButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const source = btn.dataset ? btn.dataset.source : null;
+          let text = "";
+          let targetTextarea = null;
+          let label = "";
+
+          if (source === "memo" && memoTextInput) {
+            targetTextarea = memoTextInput;
+            label = "備注 文字欄";
+            text = memoTextInput.value.trim();
+          } else if (source === "row-desc") {
+            const row = btn.closest(".note-row");
+            if (row) {
+              const descInput = row.querySelector(".desc-input");
+              if (descInput) {
+                targetTextarea = descInput;
+                const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
+                const index = rows.indexOf(row) + 1;
+                if (index > 0) {
+                  label = "事件記錄第 " + index + " 行的描述欄";
+                } else {
+                  label = "事件記錄的描述欄";
+                }
+                text = descInput.value.trim();
+              }
+            }
+          }
+
+          // Record which textbox should be updated later, even if empty.
+          if (targetTextarea) {
+            setTranslateTarget(targetTextarea, label);
+          } else {
+            setTranslateTarget(null, "");
+          }
+
+          if (!text) {
+            window.alert("目前沒有可翻譯的內容。");
+            return;
+          }
+
+          sendToEnglishOriginal(text);
+        });
+      });
+    }
   }
 
   function initEnglishTranslate() {
-    if (!englishTranslateBtn || !englishOriginalInput || !englishEditedInput) return;
+    if (!englishTranslateBtn || !englishOriginalInput || !englishGoogleInput) return;
 
     englishTranslateBtn.addEventListener("click", async function () {
       const raw = englishOriginalInput.value.trim();
       if (!raw) {
-        window.alert("請先在上方輸入英文文字。");
+        window.alert("請先在上方輸入要翻譯的文字。");
         return;
       }
 
@@ -1027,14 +1181,14 @@ document.addEventListener("DOMContentLoaded", function () {
       englishTranslateBtn.classList.add("translate-btn-animating");
 
       try {
-        const standardized = await translateReport(raw);
-        englishEditedInput.value = standardized || "";
-        // trigger auto-resize on the edited box
-        englishEditedInput.style.height = "auto";
-        englishEditedInput.style.height = englishEditedInput.scrollHeight + "px";
+        const translated = await translateReport(raw);
+        englishGoogleInput.value = translated || "";
+        // trigger auto-resize on the first translation box
+        englishGoogleInput.style.height = "auto";
+        englishGoogleInput.style.height = englishGoogleInput.scrollHeight + "px";
       } catch (err) {
         console.error(err);
-        window.alert("翻譯服務目前無法使用，請稍後再試。");
+        window.alert("翻譯服務目前無法使用，請稍後再試。\n\n" + (err && err.message ? err.message : ""));
       } finally {
         englishTranslateBtn.disabled = false;
         // allow re-triggering the animation next click
@@ -1042,6 +1196,44 @@ document.addEventListener("DOMContentLoaded", function () {
           englishTranslateBtn.classList.remove("translate-btn-animating");
         }, 200);
       }
+    });
+  }
+
+  function initTranslateChoiceButtons() {
+    if (!selectFirstTranslateBtn || !selectSecondTranslateBtn) return;
+
+    function applySelectedTranslation(fromTextarea) {
+      if (!currentTranslateTargetTextarea) {
+        window.alert("請先在事件報表頁按「前往翻譯」，選擇要更新的欄位。\n然後再按這裡選擇翻譯。");
+        return;
+      }
+
+      if (!fromTextarea) {
+        window.alert("目前沒有可用的翻譯內容。");
+        return;
+      }
+
+      const text = fromTextarea.value.trim();
+      if (!text) {
+        window.alert("目前選擇的翻譯內容是空白。");
+        return;
+      }
+
+      currentTranslateTargetTextarea.value = text;
+
+      // Manually adjust height for multi-line fields
+      try {
+        currentTranslateTargetTextarea.style.height = "auto";
+        currentTranslateTargetTextarea.style.height = currentTranslateTargetTextarea.scrollHeight + "px";
+      } catch (e) {}
+    }
+
+    selectFirstTranslateBtn.addEventListener("click", function () {
+      applySelectedTranslation(englishGoogleInput);
+    });
+
+    selectSecondTranslateBtn.addEventListener("click", function () {
+      applySelectedTranslation(englishEditedInput);
     });
   }
 
@@ -1360,9 +1552,18 @@ document.addEventListener("DOMContentLoaded", function () {
   if (englishOriginalInput) {
     setupAutoResize(englishOriginalInput);
   }
+  if (englishGoogleInput) {
+    setupAutoResize(englishGoogleInput);
+  }
   if (englishEditedInput) {
     setupAutoResize(englishEditedInput);
   }
+  if (feedbackNotesInput) {
+    setupAutoResize(feedbackNotesInput);
+  }
+
+   // Initialise the indicator showing which textbox will be updated
+   updateTranslateTargetIndicator();
 
   initStartDateSelectors();
 
@@ -1370,6 +1571,8 @@ document.addEventListener("DOMContentLoaded", function () {
   initResumeTimeControls();
   initGoogleTranslateButtons();
   initEnglishTranslate();
+  initTranslateChoiceButtons();
+  initFooterKeyboardBehavior();
 
   const restored = loadStateFromStorage();
   if (restored) {

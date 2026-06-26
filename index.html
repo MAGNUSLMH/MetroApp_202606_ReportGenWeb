@@ -20,6 +20,11 @@
     <h1>事件報表</h1>
     <button id="reset-btn" class="reset-btn" type="button" aria-label="清除並重設為預設狀態">🗑️</button>
   </header>
+  <!-- Page title bar -->
+  <div id="page-title-bar" class="page-title-bar">
+    <span id="page-title-text">事件報表</span>
+  </div>
+
   <main id="report-main" class="app-main">
     <section class="note-container">
       <div class="top-fields">
@@ -30,18 +35,13 @@
               type="button"
               class="google-translate-btn"
               data-translate-target="fault-description"
-            >Google Translate</button>
+            >前往翻譯</button>
           </div>
           <textarea id="fault-description" class="top-textarea" rows="2"></textarea>
         </div>
         <div class="field-row">
           <div class="field-label-row">
             <span class="emphasis-label">Sequency of event</span>
-            <button
-              type="button"
-              class="google-translate-btn"
-              data-translate-target="sequence"
-            >Google Translate</button>
           </div>
         </div>
         <div class="field-row">
@@ -69,7 +69,14 @@
       <div id="rows-container" class="rows-container"></div>
       <div class="memo-section">
         <div class="field-row">
-          <label for="memo-mode" class="field-label">備注</label>
+          <div class="field-label-row">
+            <label for="memo-mode" class="field-label">備注</label>
+            <button
+              type="button"
+              class="memo-translate-btn go-translate-btn"
+              data-source="memo"
+            >前往翻譯</button>
+          </div>
         </div>
         <div class="field-row">
           <select id="memo-mode" class="memo-select">
@@ -81,7 +88,7 @@
             <option value="FREE">手動輸入文字...</option>
           </select>
         </div>
-        <div class="field-row">
+        <div class="field-row memo-text-row">
           <textarea
             id="memo-text"
             class="bottom-textarea"
@@ -104,7 +111,7 @@
           </div>
         </div>
       </div>
-      <div class="actions-row">
+       <div class="memo-section">
         <button id="export-btn" class="secondary-btn" type="button">匯出文字檔</button>
         <button id="whatsapp-btn" class="secondary-btn whatsapp-btn" type="button">
           <img src="whatsapp_icon.png" alt="WhatsApp" class="whatsapp-icon" width="30" height="30"> WhatsApp
@@ -119,7 +126,7 @@
               type="button"
               class="google-translate-btn"
               data-translate-target="finding"
-            >Google Translate</button>
+            >前往翻譯</button>
           </div>
           <textarea id="finding" class="bottom-textarea" rows="2"></textarea>
         </div>
@@ -130,7 +137,7 @@
               type="button"
               class="google-translate-btn"
               data-translate-target="root-cause"
-            >Google Translate</button>
+            >前往翻譯</button>
           </div>
           <textarea id="root-cause" class="bottom-textarea" rows="2"></textarea>
         </div>
@@ -141,7 +148,7 @@
               type="button"
               class="google-translate-btn"
               data-translate-target="action-taken"
-            >Google Translate</button>
+            >前往翻譯</button>
           </div>
           <textarea id="action-taken" class="bottom-textarea" rows="2"></textarea>
         </div>
@@ -152,7 +159,7 @@
               type="button"
               class="google-translate-btn"
               data-translate-target="resume-time"
-            >Google Translate</button>
+            >前往翻譯</button>
           </div>
           <select id="resume-time-mode" class="memo-select">
             <option value="TBC">TBC</option>
@@ -174,19 +181,62 @@
     </section>
   </main>
 
-  <main id="translate-main" class="app-main hidden">
+    <main id="translate-main" class="app-main hidden">
     <section class="note-container translate-container">
-      <h2 class="subheading">英文修改</h2>
+      <h3 class="subheading">原本英文文字</h3>
       <div class="field-row">
-        <label for="english-original" class="field-label">原本英文文字</label>
-        <textarea id="english-original" class="bottom-textarea english-textarea" rows="6"></textarea>
+        <textarea
+          id="english-original"
+          class="bottom-textarea english-textarea"
+          rows="2"
+        ></textarea>
       </div>
+
       <div class="field-row translate-button-row">
         <button type="button" id="english-translate-btn" class="translate-btn">翻譯</button>
       </div>
+
+      <h3 class="subheading translate-option-header translate-option-header-1">第一個翻譯 : Google Translate</h3>
       <div class="field-row">
-        <label for="english-edited" class="field-label">修改後英文文字</label>
-        <textarea id="english-edited" class="bottom-textarea english-textarea" rows="6"></textarea>
+        <textarea
+          id="english-google"
+          class="bottom-textarea english-textarea translate-option-textarea-1"
+          rows="2"
+        ></textarea>
+      </div>
+
+      <h3 class="subheading translate-option-header translate-option-header-2">第二個翻譯 : Google + T5</h3>
+      <div class="field-row">
+        <textarea
+          id="english-edited"
+          class="bottom-textarea english-textarea translate-option-textarea-2"
+          rows="2"
+        ></textarea>
+      </div>
+
+      <div class="field-row translate-choice-row">
+        <button
+          type="button"
+          id="select-first-translate-btn"
+          class="translate-choice-btn translate-choice-btn-first"
+        >選擇第一個翻譯 (GT)</button>
+      </div>
+
+      <div class="field-row translate-choice-row">
+        <button
+          type="button"
+          id="select-second-translate-btn"
+          class="translate-choice-btn translate-choice-btn-second"
+        >選擇第二個翻譯 (GT+T5)</button>
+      </div>
+
+      <div class="field-row">
+        <textarea
+          id="translate-target-indicator"
+          class="bottom-textarea translate-target-indicator"
+          rows="2"
+          readonly
+        ></textarea>
       </div>
     </section>
   </main>
@@ -223,6 +273,7 @@
           <button type="button" class="row-action-btn row-action-down">向下</button>
           <button type="button" class="row-action-btn row-action-add-below">向下加行</button>
           <button type="button" class="row-action-btn row-action-delete">刪除</button>
+          <button type="button" class="row-action-btn row-action-go-translate go-translate-btn" data-source="row-desc">前往翻譯</button>
           <button type="button" class="row-action-btn row-action-cancel">取消</button>
         </div>
       </div>

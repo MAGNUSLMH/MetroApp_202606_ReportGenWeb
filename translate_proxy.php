@@ -1,5 +1,5 @@
 <?php
-// Simple PHP proxy to call the Hugging Face backend from your own server.
+// Simple PHP proxy to call the external translation API from your own server.
 // This avoids browser CORS issues by doing the remote call server-side.
 
 // Ensure PHP notices/warnings are not dumped as HTML into the response
@@ -32,17 +32,15 @@ if ($text === '') {
     exit;
 }
 
-// NOTE: Check your Space's "Use via API" button at the bottom of the page.
-// If it is a newer Gradio space, the URL is usually /run/translate_and_standardize
-// If it is an older space, it remains /api/predict/translate_and_standardize
-$spaceEndpoint = 'https://magnuslmh-t5-finet-01.hf.space/run/translate_and_standardize';
+// External translation API endpoint (PythonAnywhere)
+$apiEndpoint = 'https://magnuslmh.pythonanywhere.com/translator/translate';
 
-// Gradio API expects inputs inside a "data" array
+// API expects JSON: { "text": "<Traditional Chinese text>" }
 $payload = json_encode([
-    'data' => [$text],
-]);
+    'text' => $text,
+], JSON_UNESCAPED_UNICODE);
 
-$ch = curl_init($spaceEndpoint);
+$ch = curl_init($apiEndpoint);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -67,15 +65,33 @@ if ($curlErrNo !== 0) {
 
 if ($httpCode < 200 || $httpCode >= 300) {
     http_response_code($httpCode);
+
+    $decodedError = json_decode($responseBody, true);
+    if (is_array($decodedError) && isset($decodedError['error'])) {
+        echo json_encode([
+            'error' => $decodedError['error'],
+        ]);
+    } else {
+        echo json_encode([
+            'error'  => 'Upstream HTTP error',
+            'status' => $httpCode,
+        ]);
+    }
+    exit;
+}
+
+// Successful response: expect JSON with "original" and "translated" keys
+$decoded = json_decode($responseBody, true);
+if (!is_array($decoded) || !isset($decoded['translated'])) {
+    http_response_code(502);
     echo json_encode([
-        'error' => 'Upstream HTTP error',
-        'status' => $httpCode,
-        'body' => $responseBody,
+        'error' => 'Invalid response format from translator API',
     ]);
     exit;
 }
 
-// If the Space already returns Gradio-style JSON ({ data: [...] }), just forward it.
-// The frontend will pick out data[0].
-echo $responseBody;
+echo json_encode([
+    'original'   => $decoded['original'] ?? $text,
+    'translated' => $decoded['translated'],
+]);
 exit;
