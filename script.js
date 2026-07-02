@@ -49,6 +49,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const STORAGE_KEY = "fault_report_form_v1";
 
+  // Some free hosting providers (such as free.nf) place PHP scripts behind a
+  // JavaScript-based anti-bot check that first returns an HTML page
+  // (containing /aes.js and a __test cookie script) before allowing further
+  // requests. When our frontend calls translate_proxy.php via fetch(), that
+  // HTML challenge would break JSON parsing.
+  //
+  // To avoid this, we "pre-warm" translate_proxy.php inside a hidden iframe
+  // once on page load. The challenge script then runs in that iframe,
+  // sets the __test cookie for the domain, and future AJAX calls from
+  // fetch("translate_proxy.php") will see the normal JSON response.
+  function ensureTranslateProxyCookie() {
+    try {
+      const hostname = window.location && window.location.hostname;
+      // Only needed on the production host; skip for local file/localhost.
+      if (!hostname || hostname.indexOf("free.nf") === -1) {
+        return;
+      }
+
+      // If the __test cookie is already present, no need to do anything.
+      if (document.cookie && document.cookie.indexOf("__test=") !== -1) {
+        return;
+      }
+
+      if (!document.body) return;
+
+      // Avoid creating multiple iframes.
+      if (document.getElementById("translate-proxy-bootstrap-frame")) {
+        return;
+      }
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "translate-proxy-bootstrap-frame";
+      iframe.src = "translate_proxy.php";
+      iframe.style.display = "none";
+      iframe.setAttribute("aria-hidden", "true");
+      iframe.onload = function () {
+        // After at least one successful load, the cookie should be set.
+        // Remove the iframe to avoid unnecessary network traffic.
+        setTimeout(function () {
+          try {
+            if (iframe && iframe.parentNode) {
+              iframe.parentNode.removeChild(iframe);
+            }
+          } catch (e) {}
+        }, 0);
+      };
+
+      document.body.appendChild(iframe);
+    } catch (e) {
+      console.error("Failed to pre-warm translate_proxy.php cookie challenge:", e);
+    }
+  }
+
   // Call local PHP proxy, which forwards to the external translation API
   // (Traditional Chinese -> English). Returns the translated English text.
   async function translateReport(rawText) {
@@ -97,6 +150,59 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (error) {
       console.error("Translation service error:", error);
       throw new Error("翻譯服務回應錯誤: " + error.message);
+    }
+  }
+
+  // Call local PHP proxy for Hugging Face T5 backend (Google English -> T5-standardized English).
+  // Expects the PHP script to forward Gradio-style JSON: { data: ["<final text>", ...] }.
+  async function translateWithT5(englishText) {
+    try {
+      const response = await fetch("t5_proxy.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: englishText }),
+        credentials: "same-origin",
+      });
+
+      const raw = await response.text().catch(function () {
+        return "";
+      });
+
+      if (!response.ok) {
+        throw new Error("T5 服務回應錯誤 (" + response.status + ") " + raw);
+      }
+
+      let payload = null;
+      try {
+        payload = raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        console.error("t5_proxy.php returned non-JSON response:", raw);
+        throw new Error("T5 服務回傳非 JSON 內容，請聯絡系統管理員。");
+      }
+
+      if (!payload || typeof payload !== "object") {
+        throw new Error("T5 服務回傳格式錯誤，請聯絡系統管理員。");
+      }
+
+      if (payload.error) {
+        throw new Error("T5 服務錯誤: " + payload.error);
+      }
+
+      const data = payload.data;
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error("T5 服務沒有回傳翻譯結果。");
+      }
+
+      const t5Result = data[0];
+      const text = typeof t5Result === "string" ? t5Result : String(t5Result);
+
+      console.log("T5 Output:", text);
+      return text;
+    } catch (error) {
+      console.error("T5 service error:", error);
+      throw new Error("T5 服務回應錯誤: " + error.message);
     }
   }
 
@@ -182,13 +288,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!translateTargetIndicatorInput) return;
 
     if (!currentTranslateTargetTextarea) {
-      translateTargetIndicatorInput.value = "尚未選擇要更新的欄位";
+      translateTargetIndicatorInput.textContent = "尚未選擇要更新的欄位";
     } else {
-      translateTargetIndicatorInput.value = "目前將更新欄位：\n" + currentTranslateTargetLabel;
+      translateTargetIndicatorInput.textContent = "目前將更新欄位：\n" + currentTranslateTargetLabel;
     }
-
-    translateTargetIndicatorInput.style.height = "auto";
-    translateTargetIndicatorInput.style.height = translateTargetIndicatorInput.scrollHeight + "px";
   }
 
   function setTranslateTarget(textarea, label) {
@@ -1167,8 +1270,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function ensureLastLineHasFullStop(text) {
+    if (!text) return text;
+
+    // Split into lines and inspect the last non-empty line.
+    const lines = text.split(/\r?\n/);
+    for (let i = lines.length - 1; i >= 0; i -= 1) {
+      const originalLine = lines[i];
+      const trimmed = originalLine.trim();
+      if (!trimmed) {
+        continue;
+      }
+
+      // If the line already contains punctuation (full stop, question mark,
+      // exclamation mark, semicolon, colon, and their Chinese counterparts),
+      // keep as-is. This prevents us from appending an extra full stop when
+      // Google Translate has already produced a punctuated sentence.
+      const hasPunctuation = /[.!?;:。！？；：]/.test(trimmed);
+      if (hasPunctuation) {
+        return text;
+      }
+
+      // Otherwise, append a full stop to the original (untrimmed) line.
+      lines[i] = originalLine + ".";
+      return lines.join("\n");
+    }
+
+    return text;
+  }
+
   function initEnglishTranslate() {
-    if (!englishTranslateBtn || !englishOriginalInput || !englishGoogleInput) return;
+    if (!englishTranslateBtn || !englishOriginalInput || !englishGoogleInput || !englishEditedInput) return;
 
     englishTranslateBtn.addEventListener("click", async function () {
       const raw = englishOriginalInput.value.trim();
@@ -1177,18 +1309,55 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // On free.nf production, make sure the anti-bot cookie is in place
+      // before we attempt the JSON fetch. This is a no-op on localhost.
+      ensureTranslateProxyCookie();
+
       englishTranslateBtn.disabled = true;
       englishTranslateBtn.classList.add("translate-btn-animating");
 
+      // Clear previous results before starting a new translation
+      englishGoogleInput.value = "";
+      englishEditedInput.value = "";
+
       try {
-        const translated = await translateReport(raw);
-        englishGoogleInput.value = translated || "";
-        // trigger auto-resize on the first translation box
-        englishGoogleInput.style.height = "auto";
-        englishGoogleInput.style.height = englishGoogleInput.scrollHeight + "px";
+        // First, call the existing Google translation proxy (Traditional Chinese -> English).
+        const googleTranslatedRaw = await translateReport(raw);
+        const googleTranslated = ensureLastLineHasFullStop(googleTranslatedRaw || "");
+
+        // Second translation box (GT) shows the pure Google Translate output (with ensured final full stop).
+        englishEditedInput.value = googleTranslated || "";
+        englishEditedInput.style.height = "auto";
+        englishEditedInput.style.height = englishEditedInput.scrollHeight + "px";
+
+        // Then, send the Google English output to Hugging Face T5 for further standardization.
+        // The first translation box (GT+T5) shows this combined result.
+        try {
+          const t5Text = await translateWithT5(googleTranslated);
+          englishGoogleInput.value = t5Text || "";
+          englishGoogleInput.style.height = "auto";
+          englishGoogleInput.style.height = englishGoogleInput.scrollHeight + "px";
+        } catch (t5Err) {
+          console.error(t5Err);
+          window.alert(
+            "T5 服務目前無法使用，已僅顯示 Google 翻譯。\n\n" +
+              (t5Err && t5Err.message ? t5Err.message : "")
+          );
+          // Keep the GT+T5 box empty to avoid misleading the user.
+          englishGoogleInput.value = "";
+          englishGoogleInput.style.height = "auto";
+          englishGoogleInput.style.height = englishGoogleInput.scrollHeight + "px";
+        }
       } catch (err) {
         console.error(err);
         window.alert("翻譯服務目前無法使用，請稍後再試。\n\n" + (err && err.message ? err.message : ""));
+
+        englishGoogleInput.value = "";
+        englishEditedInput.value = "";
+        englishGoogleInput.style.height = "auto";
+        englishGoogleInput.style.height = englishGoogleInput.scrollHeight + "px";
+        englishEditedInput.style.height = "auto";
+        englishEditedInput.style.height = englishEditedInput.scrollHeight + "px";
       } finally {
         englishTranslateBtn.disabled = false;
         // allow re-triggering the animation next click
@@ -1201,6 +1370,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function initTranslateChoiceButtons() {
     if (!selectFirstTranslateBtn || !selectSecondTranslateBtn) return;
+
+    function resetTranslateTabContent() {
+      if (englishOriginalInput) {
+        englishOriginalInput.value = "";
+        englishOriginalInput.style.height = "";
+      }
+      if (englishGoogleInput) {
+        englishGoogleInput.value = "";
+        englishGoogleInput.style.height = "";
+      }
+      if (englishEditedInput) {
+        englishEditedInput.value = "";
+        englishEditedInput.style.height = "";
+      }
+    }
 
     function applySelectedTranslation(fromTextarea) {
       if (!currentTranslateTargetTextarea) {
@@ -1219,19 +1403,51 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      currentTranslateTargetTextarea.value = text;
+      const ok = window.confirm("請確認是否套用此翻譯結果並返回事件報表？");
+      if (!ok) {
+        return;
+      }
+
+      // Capture the current target element so we can safely use it inside
+      // asynchronous callbacks (setTimeout) even if the global pointer is
+      // cleared later.
+      const targetEl = currentTranslateTargetTextarea;
+
+      targetEl.value = text;
 
       // Manually adjust height for multi-line fields
       try {
-        currentTranslateTargetTextarea.style.height = "auto";
-        currentTranslateTargetTextarea.style.height = currentTranslateTargetTextarea.scrollHeight + "px";
+        targetEl.style.height = "auto";
+        targetEl.style.height = targetEl.scrollHeight + "px";
       } catch (e) {}
+
+      // Flash the updated textbox background between yellow and white for 5 seconds.
+      try {
+        targetEl.classList.add("translate-updated-flash");
+        setTimeout(function () {
+          try {
+            targetEl.classList.remove("translate-updated-flash");
+          } catch (e) {}
+        }, 5000);
+      } catch (e) {}
+
+      // After applying the translation, clear the global translate target
+      // so the indicator shows that no field is currently selected.
+      setTranslateTarget(null, "");
+
+      // Reset the translate page and navigate back to the report tab.
+      resetTranslateTabContent();
+      if (typeof showTab === "function") {
+        showTab("report");
+      }
     }
 
+    // 第一個翻譯按鈕選擇 GT+T5 結果（englishGoogleInput）
     selectFirstTranslateBtn.addEventListener("click", function () {
       applySelectedTranslation(englishGoogleInput);
     });
 
+    // 第二個翻譯按鈕選擇純 Google Translate 結果（englishEditedInput）
     selectSecondTranslateBtn.addEventListener("click", function () {
       applySelectedTranslation(englishEditedInput);
     });

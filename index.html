@@ -196,7 +196,7 @@
         <button type="button" id="english-translate-btn" class="translate-btn">翻譯</button>
       </div>
 
-      <h3 class="subheading translate-option-header translate-option-header-1">第一個翻譯 : Google Translate</h3>
+      <h3 class="subheading translate-option-header translate-option-header-1">第一個翻譯 : Google + T5</h3>
       <div class="field-row">
         <textarea
           id="english-google"
@@ -205,7 +205,7 @@
         ></textarea>
       </div>
 
-      <h3 class="subheading translate-option-header translate-option-header-2">第二個翻譯 : Google + T5</h3>
+      <h3 class="subheading translate-option-header translate-option-header-2">第二個翻譯 : Google Translate</h3>
       <div class="field-row">
         <textarea
           id="english-edited"
@@ -219,7 +219,7 @@
           type="button"
           id="select-first-translate-btn"
           class="translate-choice-btn translate-choice-btn-first"
-        >選擇第一個翻譯 (GT)</button>
+        >選擇第一個翻譯 (GT+T5)</button>
       </div>
 
       <div class="field-row translate-choice-row">
@@ -227,16 +227,15 @@
           type="button"
           id="select-second-translate-btn"
           class="translate-choice-btn translate-choice-btn-second"
-        >選擇第二個翻譯 (GT+T5)</button>
+        >選擇第二個翻譯 (GT)</button>
       </div>
 
       <div class="field-row">
-        <textarea
+        <div
           id="translate-target-indicator"
-          class="bottom-textarea translate-target-indicator"
-          rows="2"
-          readonly
-        ></textarea>
+          class="translate-target-indicator"
+          aria-live="polite"
+        ></div>
       </div>
     </section>
   </main>

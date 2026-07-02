@@ -781,23 +781,23 @@ textarea {
 }
 
 .translate-option-header-1 {
-  background-color: #FFD700;
+  background-color: #CBCFF4; /* swapped: first option now uses purple */
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .translate-option-textarea-1 {
-  border-color: #FFD700;
+  border-color: #CBCFF4; /* swapped: first textarea now uses purple */
 }
 
 .translate-option-header-2 {
-  background-color: #CBCFF4;
+  background-color: #FFD700; /* swapped: second option now uses gold */
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .translate-option-textarea-2 {
-  border-color: #CBCFF4;
+  border-color: #FFD700; /* swapped: second textarea now uses gold */
 }
 
 .translate-choice-row {
@@ -816,17 +816,39 @@ textarea {
 }
 
 .translate-choice-btn-first {
-  background-color: #FFD700;
-  border-color: #FFD700;
+  background-color: #CBCFF4; /* first choice button now purple */
+  border-color: #CBCFF4;
 }
 
 .translate-choice-btn-second {
-  background-color: #CBCFF4;
+  background-color: #FFD700; /* second choice button now gold */
+  border-color: #FFD700;
 }
 
 .translate-target-indicator {
-  border-style: dotted;
+  border: 1px dotted #9ca3af;
   font-weight: 600;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: #f9fafb;
+  white-space: pre-line; /* preserve line breaks from JS */
+}
+
+.translate-updated-flash {
+  animation: translate-updated-flash-bg 0.5s ease-in-out infinite;
+}
+
+@keyframes translate-updated-flash-bg {
+  0% {
+    background-color: #ffffff;
+  }
+  50% {
+    background-color: #fff9c4; /* soft yellow */
+  }
+  100% {
+    background-color: #ffffff;
+  }
 }
 
 .translate-button-row {
