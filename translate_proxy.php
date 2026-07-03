@@ -26,6 +26,11 @@ if (!is_array($data) || !isset($data['text'])) {
 
 $text = trim((string)$data['text']);
 
+$direction = '';
+if (is_array($data) && isset($data['direction'])) {
+    $direction = trim((string)$data['direction']);
+}
+
 if ($text === '') {
     http_response_code(400);
     echo json_encode(['error' => 'Empty text']);
@@ -33,12 +38,25 @@ if ($text === '') {
 }
 
 // External translation API endpoint (PythonAnywhere)
+// Default direction: Traditional Chinese -> English (existing behaviour).
 $apiEndpoint = 'https://magnuslmh.pythonanywhere.com/translator/translate';
 
-// API expects JSON: { "text": "<Traditional Chinese text>" }
-$payload = json_encode([
+// Optional alternative direction: English -> Traditional Chinese for
+// double-translation cards in the UI.
+if ($direction === 'en_to_zh') {
+    $apiEndpoint = 'https://magnuslmh.pythonanywhere.com/translator/translate_en_to_zh';
+}
+
+// API expects JSON: { "text": "..." }
+// Direction is passed through for future backend support, but remains optional.
+$payloadBody = [
     'text' => $text,
-], JSON_UNESCAPED_UNICODE);
+];
+if ($direction !== '') {
+    $payloadBody['direction'] = $direction;
+}
+
+$payload = json_encode($payloadBody, JSON_UNESCAPED_UNICODE);
 
 $ch = curl_init($apiEndpoint);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

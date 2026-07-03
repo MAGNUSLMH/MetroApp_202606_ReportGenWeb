@@ -19,6 +19,26 @@ const googleTranslateButtons = document.querySelectorAll(
 );
 const goTranslateButtons = document.querySelectorAll(".go-translate-btn");
 
+const firstTranslateChineseInput = document.getElementById(
+  "first-translate-chinese"
+);
+const secondTranslateChineseInput = document.getElementById(
+  "second-translate-chinese"
+);
+const firstTranslateAdoptBtn = document.getElementById(
+  "first-translate-adopt-btn"
+);
+const secondTranslateAdoptBtn = document.getElementById(
+  "second-translate-adopt-btn"
+);
+const firstTranslateBackBtn = document.getElementById(
+  "first-translate-back-btn"
+);
+const secondTranslateBackBtn = document.getElementById(
+  "second-translate-back-btn"
+);
+const translateCardsWrapper = document.getElementById("translate-cards-wrapper");
+
 function ensureTranslateProxyCookie() {
   try {
     const hostname = window.location && window.location.hostname;
@@ -107,6 +127,135 @@ async function translateReport(rawText) {
   } catch (error) {
     console.error("Translation service error:", error);
     throw new Error("翻譯服務回應錯誤: " + error.message);
+  }
+}
+
+async function translateEnglishBackToChinese(englishText) {
+  try {
+    const response = await fetch("translate_proxy.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text: englishText, direction: "en_to_zh" }),
+      credentials: "same-origin",
+    });
+
+    const raw = await response.text().catch(function () {
+      return "";
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        "翻譯服務回應錯誤 (" + response.status + ") " + raw
+      );
+    }
+
+    let payload = null;
+    try {
+      payload = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.error("translate_proxy.php returned non-JSON response:", raw);
+      throw new Error("翻譯服務回傳非 JSON 內容，請聯絡系統管理員。");
+    }
+
+    if (!payload || typeof payload !== "object") {
+      throw new Error("翻譯服務回傳格式錯誤，請聯絡系統管理員。");
+    }
+
+    if (payload.error) {
+      throw new Error("翻譯服務錯誤: " + payload.error);
+    }
+
+    const translated = payload.translated || "";
+    if (!translated) {
+      throw new Error("翻譯服務沒有回傳翻譯結果。");
+    }
+
+    console.log("Back-translated Chinese Output:", translated);
+    return translated;
+  } catch (error) {
+    console.error("Back translation service error:", error);
+    throw new Error("翻譯服務回應錯誤: " + error.message);
+  }
+}
+
+function hideDoubleTranslationCards() {
+  if (translateCardsWrapper) {
+    translateCardsWrapper.classList.add("hidden");
+  }
+}
+
+async function populateDoubleTranslationCards(gptEnglish, googleEnglish) {
+  if (!translateCardsWrapper) {
+    return;
+  }
+
+  if (firstTranslateChineseInput) {
+    firstTranslateChineseInput.value = "";
+    firstTranslateChineseInput.classList.remove("double-translate-modified");
+    firstTranslateChineseInput.style.height = "auto";
+  }
+  if (secondTranslateChineseInput) {
+    secondTranslateChineseInput.value = "";
+    secondTranslateChineseInput.classList.remove("double-translate-modified");
+    secondTranslateChineseInput.style.height = "auto";
+  }
+
+  const tasks = [];
+
+  if (firstTranslateChineseInput && gptEnglish) {
+    tasks.push(
+      translateEnglishBackToChinese(gptEnglish)
+        .then(function (chineseText) {
+          firstTranslateChineseInput.value = chineseText || "";
+          if (typeof window.resizeToContent === "function") {
+            window.resizeToContent(firstTranslateChineseInput);
+          } else {
+            firstTranslateChineseInput.style.height = "auto";
+            firstTranslateChineseInput.style.height =
+              firstTranslateChineseInput.scrollHeight + "px";
+          }
+        })
+        .catch(function (error) {
+          console.error(error);
+          window.alert(
+            "第一個翻譯的中文回譯目前無法使用。\n\n" +
+              (error && error.message ? error.message : "")
+          );
+        })
+    );
+  }
+
+  if (secondTranslateChineseInput && googleEnglish) {
+    tasks.push(
+      translateEnglishBackToChinese(googleEnglish)
+        .then(function (chineseText) {
+          secondTranslateChineseInput.value = chineseText || "";
+          if (typeof window.resizeToContent === "function") {
+            window.resizeToContent(secondTranslateChineseInput);
+          } else {
+            secondTranslateChineseInput.style.height = "auto";
+            secondTranslateChineseInput.style.height =
+              secondTranslateChineseInput.scrollHeight + "px";
+          }
+        })
+        .catch(function (error) {
+          console.error(error);
+          window.alert(
+            "第二個翻譯的中文回譯目前無法使用。\n\n" +
+              (error && error.message ? error.message : "")
+          );
+        })
+    );
+  }
+
+  try {
+    if (tasks.length) {
+      await Promise.all(tasks);
+    }
+  } finally {
+    translateCardsWrapper.classList.remove("hidden");
   }
 }
 
@@ -410,11 +559,31 @@ function initEnglishTranslate() {
 
     englishGoogleInput.value = "";
     englishEditedInput.value = "";
+    englishGoogleInput.style.height = "";
+    englishEditedInput.style.height = "";
+
+    // Hide any existing cards and clear back-translated Chinese before
+    // starting a new translation run.
+    hideDoubleTranslationCards();
+    if (firstTranslateChineseInput) {
+      firstTranslateChineseInput.value = "";
+      firstTranslateChineseInput.classList.remove("double-translate-modified");
+      firstTranslateChineseInput.style.height = "";
+    }
+    if (secondTranslateChineseInput) {
+      secondTranslateChineseInput.value = "";
+      secondTranslateChineseInput.classList.remove("double-translate-modified");
+      secondTranslateChineseInput.style.height = "";
+    }
+
+    let gptTranslatedValue = "";
+    let googleTranslatedValue = "";
 
     try {
       try {
         const gptTranslated = await translateWithGPT(raw);
-        englishGoogleInput.value = gptTranslated || "";
+        gptTranslatedValue = gptTranslated || "";
+        englishGoogleInput.value = gptTranslatedValue;
         englishGoogleInput.style.height = "auto";
         englishGoogleInput.style.height =
           englishGoogleInput.scrollHeight + "px";
@@ -435,10 +604,18 @@ function initEnglishTranslate() {
         googleTranslatedRaw || ""
       );
 
-      englishEditedInput.value = googleTranslated || "";
+      googleTranslatedValue = googleTranslated || "";
+      englishEditedInput.value = googleTranslatedValue;
       englishEditedInput.style.height = "auto";
       englishEditedInput.style.height =
         englishEditedInput.scrollHeight + "px";
+
+      // After both English translations are ready, perform English->Chinese
+      // back-translation and show the cards.
+      await populateDoubleTranslationCards(
+        gptTranslatedValue,
+        googleTranslatedValue
+      );
     } catch (err) {
       console.error(err);
       window.alert(
@@ -454,6 +631,7 @@ function initEnglishTranslate() {
         englishGoogleInput.scrollHeight + "px";
       englishEditedInput.style.height =
         englishEditedInput.scrollHeight + "px";
+      hideDoubleTranslationCards();
     } finally {
       englishTranslateBtn.disabled = false;
       setTimeout(function () {
@@ -562,6 +740,160 @@ function initTranslateChoiceButtons() {
   });
 }
 
+function initDoubleTranslateCardButtons() {
+  if (!englishOriginalInput) return;
+
+  function applySelectedTranslationToTarget(fromTextarea) {
+    if (!currentTranslateTargetTextarea) {
+      window.alert(
+        "請先在事件報表頁按「前往翻譯」，選擇要更新的欄位。\n然後再按卡片上的 ✅ 按鈕。"
+      );
+      return;
+    }
+
+    if (!fromTextarea) {
+      window.alert("目前沒有可用的翻譯內容。");
+      return;
+    }
+
+    const text = fromTextarea.value.trim();
+    if (!text) {
+      window.alert("目前選擇的翻譯內容是空白。");
+      return;
+    }
+
+    const ok = window.confirm(
+      "請確認是否套用此翻譯結果並返回事件報表？"
+    );
+    if (!ok) {
+      return;
+    }
+
+    const targetEl = currentTranslateTargetTextarea;
+    targetEl.value = text;
+
+    try {
+      targetEl.classList.add("translate-updated-flash");
+      setTimeout(function () {
+        try {
+          targetEl.classList.remove("translate-updated-flash");
+        } catch (e) {}
+      }, 5000);
+    } catch (e) {}
+
+    if (typeof setTranslateTarget === "function") {
+      setTranslateTarget(null, "");
+    }
+
+    if (typeof showTab === "function") {
+      showTab("report");
+    }
+
+    // After adopting any translation, hide the cards so they do not
+    // remain visible when the user returns to the translate tab.
+    hideDoubleTranslationCards();
+
+    function performResize() {
+      try {
+        if (typeof window.resizeToContent === "function") {
+          window.resizeToContent(targetEl);
+        } else {
+          targetEl.style.height = "auto";
+          targetEl.style.height = targetEl.scrollHeight + "px";
+        }
+      } catch (e) {}
+    }
+
+    if (typeof window.requestAnimationFrame === "function") {
+      window.requestAnimationFrame(performResize);
+    } else {
+      setTimeout(performResize, 0);
+    }
+  }
+
+  function moveChineseToOriginal(sourceTextarea) {
+    if (!englishOriginalInput) {
+      return;
+    }
+
+    if (!sourceTextarea) {
+      window.alert("目前沒有可用的雙重翻譯內容。");
+      return;
+    }
+
+    const text = sourceTextarea.value.trim();
+    if (!text) {
+      window.alert("目前選擇的中文內容是空白。");
+      return;
+    }
+
+    const ok = window.confirm(
+      "請確認是否將此雙重翻譯的中文內容移回「原本中文文字」欄位以便進一步修改？"
+    );
+    if (!ok) {
+      return;
+    }
+
+    englishOriginalInput.value = text;
+
+    try {
+      if (typeof window.resizeToContent === "function") {
+        window.resizeToContent(englishOriginalInput);
+      } else {
+        englishOriginalInput.style.height = "auto";
+        englishOriginalInput.style.height =
+          englishOriginalInput.scrollHeight + "px";
+      }
+    } catch (e) {}
+
+    hideDoubleTranslationCards();
+
+    // After moving the double-translated Chinese back to "原本中文文字",
+    // automatically re-run the translation process so the cards are
+    // regenerated for the updated text.
+    if (
+      englishTranslateBtn &&
+      !englishTranslateBtn.disabled &&
+      typeof englishTranslateBtn.click === "function"
+    ) {
+      englishTranslateBtn.click();
+    }
+  }
+
+  if (firstTranslateAdoptBtn) {
+    firstTranslateAdoptBtn.addEventListener("click", function () {
+      applySelectedTranslationToTarget(englishGoogleInput);
+    });
+  }
+
+  if (secondTranslateAdoptBtn) {
+    secondTranslateAdoptBtn.addEventListener("click", function () {
+      applySelectedTranslationToTarget(englishEditedInput);
+    });
+  }
+
+  if (firstTranslateBackBtn) {
+    firstTranslateBackBtn.addEventListener("click", function () {
+      moveChineseToOriginal(firstTranslateChineseInput);
+    });
+  }
+
+  if (secondTranslateBackBtn) {
+    secondTranslateBackBtn.addEventListener("click", function () {
+      moveChineseToOriginal(secondTranslateChineseInput);
+    });
+  }
+
+  [firstTranslateChineseInput, secondTranslateChineseInput].forEach(function (
+    textarea
+  ) {
+    if (!textarea) return;
+    textarea.addEventListener("input", function () {
+      textarea.classList.add("double-translate-modified");
+    });
+  });
+}
+
 if (englishOriginalInput && typeof setupAutoResize === "function") {
   setupAutoResize(englishOriginalInput);
 }
@@ -571,7 +903,14 @@ if (englishGoogleInput && typeof setupAutoResize === "function") {
 if (englishEditedInput && typeof setupAutoResize === "function") {
   setupAutoResize(englishEditedInput);
 }
+if (firstTranslateChineseInput && typeof setupAutoResize === "function") {
+  setupAutoResize(firstTranslateChineseInput);
+}
+if (secondTranslateChineseInput && typeof setupAutoResize === "function") {
+  setupAutoResize(secondTranslateChineseInput);
+}
 
 initGoogleTranslateButtons();
 initEnglishTranslate();
 initTranslateChoiceButtons();
+initDoubleTranslateCardButtons();

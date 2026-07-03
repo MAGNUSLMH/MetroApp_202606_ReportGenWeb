@@ -44,16 +44,25 @@ $url = "https://cuhk-apip.azure-api.net/openai-eus2/openai/v1/chat/completions";
 // 3. Build the Azure OpenAI Chat Completions request payload.
 // We instruct GPT to translate the Traditional Chinese incident text into
 // concise, professional English in the style used by MTR incident reports.
-$systemPrompt = "You are an MTR incident report English translation assistant. "
-    . "Translate the following Traditional Chinese text into clear, concise, "
-    . "professional English suitable for MTR incident reporting. Preserve "
-    . "technical terms, times, and structure. Do not add explanations or commentary.";
+$systemPrompt = "You are a technical translator for MTR railway operations and incident reports. "
+    . "Translate the following Traditional Chinese text into professional, neutral English. "
+    . "Strictly adhere to these rules:\n"
+    . "- Diction: Use formal, clinical, and denotative yet MOST BASIC language. No metaphors, emotion, or judgment.\n"
+    . "- Mandatory Vocabulary: Use 'lost balance' (not stumbled), 'conveyed to [hospital]' (not sent),"
+    . "'resumed normal' (not restarted), 'activated' (for alarms), 'triggered' (for faults), "
+    . "'External factor' (for passenger-caused incidents), 'failed to close/open', 'informed' (not notified), 'replaced',"
+    . "'arrived at scene' (not location), 'station staff' (not on-site staff), 'suffered injuries' (not sustained or hard verbs)\n"
+    . "- Tone & Perspective: Third-person objective. Do not use 'I' or 'we'. Report facts without evaluation.\n"
+    . "- Preservation: Keep all technical identifiers (equipment codes, locations, work order numbers) "
+    . "and 24-hour time formats exactly as given.\n"
+    . "- Constraint: Output only the translation. Do not add commentary, explanations, disclaimers, "
+    . "or any additional text.";
 
 $payload = [
-    "model" => "gpt-4o-mini", // fast, cost-effective model; UI label calls this GPT-5.1 (MTR語言)
+    "model" => "gpt-4o-mini", // fast, cost-effective; UI label calls this GPT-5.1 (MTR語言)
     "messages" => [
         ["role" => "system", "content" => $systemPrompt],
-        ["role" => "user", "content" => $text],
+        ["role" => "user", "content" => $text], // $text = your single Chinese paragraph
     ],
     "temperature" => 0.2,
 ];

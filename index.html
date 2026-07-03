@@ -282,40 +282,87 @@
       <div class="field-row translate-button-row">
         <button type="button" id="english-translate-btn" class="translate-btn">翻譯</button>
       </div>
+        <div
+          id="translate-cards-wrapper"
+          class="translate-cards-wrapper hidden"
+          aria-live="polite"
+        >
+          <div class="translate-cards-row">
+            <article class="translate-card translate-card-first">
+              <h3 class="subheading translate-option-header translate-option-header-1">
+                第一個翻譯 : GPT-5.1 (MTR語言)
+              </h3>
+              <div class="translate-card-row">
+                <button
+                  type="button"
+                  id="first-translate-adopt-btn"
+                  class="translate-card-btn translate-card-btn-adopt"
+                  aria-label="採用第一個英文翻譯結果"
+                >
+                  ✅
+                </button>
+                <textarea
+                  id="english-google"
+                  class="bottom-textarea english-textarea translate-option-textarea-1"
+                  rows="2"
+                  readonly
+                ></textarea>
+              </div>
+              <div class="translate-card-row">
+                <button
+                  type="button"
+                  id="first-translate-back-btn"
+                  class="translate-card-btn translate-card-btn-back"
+                  aria-label="將第一個翻譯的中文內容移回原本中文文字欄位"
+                >
+                  ⬆️
+                </button>
+                <textarea
+                  id="first-translate-chinese"
+                  class="bottom-textarea double-translate-textarea"
+                  rows="2"
+                ></textarea>
+              </div>
+            </article>
 
-      <h3 class="subheading translate-option-header translate-option-header-1">第一個翻譯 : GPT-5.1 (MTR語言)</h3>
-      <div class="field-row">
-        <textarea
-          id="english-google"
-          class="bottom-textarea english-textarea translate-option-textarea-1"
-          rows="2"
-        ></textarea>
-      </div>
-
-      <h3 class="subheading translate-option-header translate-option-header-2">第二個翻譯 : Google Translate</h3>
-      <div class="field-row">
-        <textarea
-          id="english-edited"
-          class="bottom-textarea english-textarea translate-option-textarea-2"
-          rows="2"
-        ></textarea>
-      </div>
-
-      <div class="field-row translate-choice-row">
-        <button
-          type="button"
-          id="select-first-translate-btn"
-          class="translate-choice-btn translate-choice-btn-first"
-        >選擇第一個翻譯 (GPT-5.1)</button>
-      </div>
-
-      <div class="field-row translate-choice-row">
-        <button
-          type="button"
-          id="select-second-translate-btn"
-          class="translate-choice-btn translate-choice-btn-second"
-        >選擇第二個翻譯 (GT)</button>
-      </div>
+            <article class="translate-card translate-card-second">
+              <h3 class="subheading translate-option-header translate-option-header-2">
+                第二個翻譯 : Google Translate
+              </h3>
+              <div class="translate-card-row">
+                <button
+                  type="button"
+                  id="second-translate-adopt-btn"
+                  class="translate-card-btn translate-card-btn-adopt"
+                  aria-label="採用第二個英文翻譯結果"
+                >
+                  ✅
+                </button>
+                <textarea
+                  id="english-edited"
+                  class="bottom-textarea english-textarea translate-option-textarea-2"
+                  rows="2"
+                  readonly
+                ></textarea>
+              </div>
+              <div class="translate-card-row">
+                <button
+                  type="button"
+                  id="second-translate-back-btn"
+                  class="translate-card-btn translate-card-btn-back"
+                  aria-label="將第二個翻譯的中文內容移回原本中文文字欄位"
+                >
+                  ⬆️
+                </button>
+                <textarea
+                  id="second-translate-chinese"
+                  class="bottom-textarea double-translate-textarea"
+                  rows="2"
+                ></textarea>
+              </div>
+            </article>
+          </div>
+        </div>
 
       <div class="field-row">
         <div
