@@ -122,44 +122,131 @@
         <div class="field-row">
           <div class="field-label-row">
             <label for="finding" class="emphasis-label">Finding (發現)</label>
-            <button
-              type="button"
-              class="google-translate-btn"
-              data-translate-target="finding"
-            >前往翻譯</button>
+            <div class="field-label-actions">
+              <button
+                type="button"
+                class="google-translate-btn"
+                data-translate-target="finding"
+              >前往翻譯</button>
+              <button
+                type="button"
+                class="whatsapp-inline-btn"
+                data-whatsapp-target="finding"
+                data-whatsapp-label="Finding (發現)"
+                aria-label="透過 WhatsApp 匯報 Finding"
+              >
+                <img
+                  src="whatsapp_icon.png"
+                  alt="WhatsApp"
+                  class="whatsapp-inline-icon"
+                >
+              </button>
+            </div>
           </div>
-          <textarea id="finding" class="bottom-textarea" rows="2"></textarea>
+          <select id="finding-mode" class="memo-select">
+            <option value="FREE">手動輸入文字</option>
+            <option value="TBC">TBC</option>
+          </select>
+          <textarea
+            id="finding"
+            class="bottom-textarea"
+            rows="2"
+            placeholder="手動輸入文字"
+          ></textarea>
         </div>
         <div class="field-row">
           <div class="field-label-row">
             <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
-            <button
-              type="button"
-              class="google-translate-btn"
-              data-translate-target="root-cause"
-            >前往翻譯</button>
+            <div class="field-label-actions">
+              <button
+                type="button"
+                class="google-translate-btn"
+                data-translate-target="root-cause"
+              >前往翻譯</button>
+              <button
+                type="button"
+                class="whatsapp-inline-btn"
+                data-whatsapp-target="root-cause"
+                data-whatsapp-label="Root Cause (原因)"
+                aria-label="透過 WhatsApp 匯報 Root Cause"
+              >
+                <img
+                  src="whatsapp_icon.png"
+                  alt="WhatsApp"
+                  class="whatsapp-inline-icon"
+                >
+              </button>
+            </div>
           </div>
-          <textarea id="root-cause" class="bottom-textarea" rows="2"></textarea>
+          <select id="root-cause-mode" class="memo-select">
+            <option value="FREE">手動輸入文字</option>
+            <option value="TBC">TBC</option>
+          </select>
+          <textarea
+            id="root-cause"
+            class="bottom-textarea"
+            rows="2"
+            placeholder="手動輸入文字"
+          ></textarea>
         </div>
         <div class="field-row">
           <div class="field-label-row">
             <label for="action-taken" class="emphasis-label">Action Taken</label>
-            <button
-              type="button"
-              class="google-translate-btn"
-              data-translate-target="action-taken"
-            >前往翻譯</button>
+            <div class="field-label-actions">
+              <button
+                type="button"
+                class="google-translate-btn"
+                data-translate-target="action-taken"
+              >前往翻譯</button>
+              <button
+                type="button"
+                class="whatsapp-inline-btn"
+                data-whatsapp-target="action-taken"
+                data-whatsapp-label="Action Taken"
+                aria-label="透過 WhatsApp 匯報 Action Taken"
+              >
+                <img
+                  src="whatsapp_icon.png"
+                  alt="WhatsApp"
+                  class="whatsapp-inline-icon"
+                >
+              </button>
+            </div>
           </div>
-          <textarea id="action-taken" class="bottom-textarea" rows="2"></textarea>
+          <select id="action-taken-mode" class="memo-select">
+            <option value="FREE">手動輸入文字</option>
+            <option value="TBC">TBC</option>
+          </select>
+          <textarea
+            id="action-taken"
+            class="bottom-textarea"
+            rows="2"
+            placeholder="手動輸入文字"
+          ></textarea>
         </div>
         <div class="field-row">
           <div class="field-label-row">
             <label for="resume-time" class="emphasis-label">Resume time</label>
-            <button
-              type="button"
-              class="google-translate-btn"
-              data-translate-target="resume-time"
-            >前往翻譯</button>
+            <div class="field-label-actions">
+              <button
+                type="button"
+                class="google-translate-btn"
+                data-translate-target="resume-time"
+              >前往翻譯</button>
+              <button
+                type="button"
+                class="whatsapp-inline-btn"
+                data-whatsapp-target="resume-time"
+                data-whatsapp-label="Resume time"
+                aria-label="透過 WhatsApp 匯報 Resume time"
+              >
+                <img
+                  src="whatsapp_icon.png"
+                  alt="WhatsApp"
+                  class="whatsapp-inline-icon"
+                >
+              </button>
+            </div>
           </div>
           <select id="resume-time-mode" class="memo-select">
             <option value="TBC">TBC</option>
@@ -183,7 +270,7 @@
 
     <main id="translate-main" class="app-main hidden">
     <section class="note-container translate-container">
-      <h3 class="subheading">原本英文文字</h3>
+      <h3 class="subheading">原本中文文字</h3>
       <div class="field-row">
         <textarea
           id="english-original"
@@ -196,7 +283,7 @@
         <button type="button" id="english-translate-btn" class="translate-btn">翻譯</button>
       </div>
 
-      <h3 class="subheading translate-option-header translate-option-header-1">第一個翻譯 : Google + T5</h3>
+      <h3 class="subheading translate-option-header translate-option-header-1">第一個翻譯 : GPT-5.1 (MTR語言)</h3>
       <div class="field-row">
         <textarea
           id="english-google"
@@ -219,7 +306,7 @@
           type="button"
           id="select-first-translate-btn"
           class="translate-choice-btn translate-choice-btn-first"
-        >選擇第一個翻譯 (GT+T5)</button>
+        >選擇第一個翻譯 (GPT-5.1)</button>
       </div>
 
       <div class="field-row translate-choice-row">
@@ -255,7 +342,7 @@
     </button>
     <button type="button" class="footer-tab" data-tab="translate">
       <span class="footer-emoji" aria-hidden="true">✏️</span>
-      <span class="footer-label">英文修改</span>
+      <span class="footer-label">英文翻譯</span>
     </button>
     <button type="button" class="footer-tab" data-tab="feedback">
       <span class="footer-emoji" aria-hidden="true">💬</span>
@@ -300,7 +387,9 @@
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <!-- Excel helper that exposes window.downloadExcel -->
   <script src="exceljs_gen.js"></script>
-  <!-- Main page logic -->
-  <script src="script.js"></script>
+  <!-- Main page logic split into general, report, and translator scripts -->
+  <script src="general_script.js"></script>
+  <script src="report_script.js"></script>
+  <script src="translator_script.js"></script>
 </body>
 </html>

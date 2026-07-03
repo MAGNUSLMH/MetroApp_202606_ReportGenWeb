@@ -737,6 +737,12 @@ textarea {
   gap: 8px;
 }
 
+.field-label-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .google-translate-btn,
 .memo-translate-btn {
   padding: 6px 10px;
@@ -754,6 +760,22 @@ textarea {
 .memo-translate-btn:hover {
   box-shadow: 0 3px 10px rgba(249, 115, 22, 0.45);
 }
+ 
+ .whatsapp-inline-btn {
+   padding: 0;
+   border: none;
+   background: transparent;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+ }
+ 
+ .whatsapp-inline-icon {
+   width: 20px;
+   height: 20px;
+   display: block;
+ }
 
 .translate-frame-wrapper {
   width: 100%;

@@ -79,7 +79,7 @@
   }
 
   const sequence = String(counter).padStart(2, "0");
-  const fileName = datePart + "_" + sequence + ".xls";
+  const fileName = datePart + "_" + sequence + ".xlsx";
 
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
