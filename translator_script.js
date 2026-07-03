@@ -552,10 +552,17 @@ function initEnglishTranslate() {
       return;
     }
 
+    const overlayEl = document.getElementById("translate-overlay");
+
     ensureTranslateProxyCookie();
 
     englishTranslateBtn.disabled = true;
     englishTranslateBtn.classList.add("translate-btn-animating");
+
+    // Overlay should only appear while the 翻譯 button is disabled.
+    if (overlayEl) {
+      overlayEl.classList.remove("hidden");
+    }
 
     englishGoogleInput.value = "";
     englishEditedInput.value = "";
@@ -637,6 +644,9 @@ function initEnglishTranslate() {
       setTimeout(function () {
         englishTranslateBtn.classList.remove("translate-btn-animating");
       }, 200);
+      if (overlayEl) {
+        overlayEl.classList.add("hidden");
+      }
     }
   });
 }
@@ -894,6 +904,71 @@ function initDoubleTranslateCardButtons() {
   });
 }
 
+function startTranslateOverlayWatchdog() {
+  // Brutal failsafe:
+  // 1. Overlay is *never* allowed to stay visible when the 翻譯 button
+  //    is not disabled.
+  // 2. Even if the translation flow gets stuck and leaves the button
+  //    disabled, we hard-reset everything after a timeout so the overlay
+  //    cannot be permanently stuck.
+
+  let lastDisabledAt = null;
+
+  setInterval(function () {
+    try {
+      const overlayEl = document.getElementById("translate-overlay");
+      const btn = document.getElementById("english-translate-btn");
+
+      if (!overlayEl) {
+        return;
+      }
+
+      // If the button is missing, we treat it as not disabled and
+      // force-hide the overlay.
+      if (!btn) {
+        overlayEl.classList.add("hidden");
+        overlayEl.style.display = "none";
+        overlayEl.style.visibility = "hidden";
+        lastDisabledAt = null;
+        return;
+      }
+
+      if (btn.disabled) {
+        // Button is disabled: overlay should be visible, but we track
+        // how long this state has lasted.
+        if (!lastDisabledAt) {
+          lastDisabledAt = Date.now();
+        }
+
+        const disabledForMs = Date.now() - lastDisabledAt;
+
+        overlayEl.classList.remove("hidden");
+        overlayEl.style.display = "";
+        overlayEl.style.visibility = "";
+
+        // If the button has been disabled for too long, brutally reset
+        // the UI so nothing can remain stuck.
+        if (disabledForMs > 60000) {
+          btn.disabled = false;
+          btn.classList.remove("translate-btn-animating");
+          overlayEl.classList.add("hidden");
+          overlayEl.style.display = "none";
+          overlayEl.style.visibility = "hidden";
+          lastDisabledAt = null;
+        }
+      } else {
+        // Button is not disabled: overlay must not be shown.
+        lastDisabledAt = null;
+        overlayEl.classList.add("hidden");
+        overlayEl.style.display = "none";
+        overlayEl.style.visibility = "hidden";
+      }
+    } catch (e) {
+      // Swallow errors so the watchdog never breaks the app.
+    }
+  }, 200);
+}
+
 if (englishOriginalInput && typeof setupAutoResize === "function") {
   setupAutoResize(englishOriginalInput);
 }
@@ -914,3 +989,4 @@ initGoogleTranslateButtons();
 initEnglishTranslate();
 initTranslateChoiceButtons();
 initDoubleTranslateCardButtons();
+startTranslateOverlayWatchdog();

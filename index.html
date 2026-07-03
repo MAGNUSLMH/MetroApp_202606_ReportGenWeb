@@ -31,11 +31,18 @@
         <div class="field-row">
           <div class="field-label-row">
             <label for="fault-description" class="emphasis-label">Fault Description</label>
-            <button
-              type="button"
-              class="google-translate-btn"
-              data-translate-target="fault-description"
-            >前往翻譯</button>
+            <div class="field-label-actions">
+              <button
+                type="button"
+                class="google-translate-btn"
+                data-translate-target="fault-description"
+              >前往翻譯</button>
+              <button
+                type="button"
+                class="copy-inline-btn"
+                data-copy-target="fault-description"
+              >Copy</button>
+            </div>
           </div>
           <textarea id="fault-description" class="top-textarea" rows="2"></textarea>
         </div>
@@ -71,11 +78,18 @@
         <div class="field-row">
           <div class="field-label-row">
             <label for="memo-mode" class="field-label">備注</label>
-            <button
-              type="button"
-              class="memo-translate-btn go-translate-btn"
-              data-source="memo"
-            >前往翻譯</button>
+            <div class="field-label-actions">
+              <button
+                type="button"
+                class="memo-translate-btn go-translate-btn"
+                data-source="memo"
+              >前往翻譯</button>
+              <button
+                type="button"
+                class="copy-inline-btn"
+                data-copy-target="memo-text"
+              >Copy</button>
+            </div>
           </div>
         </div>
         <div class="field-row">
@@ -119,30 +133,22 @@
       </div>
       <br>
       <div class="bottom-fields">
-        <div class="field-row">
-          <div class="field-label-row">
-            <label for="finding" class="emphasis-label">Finding (發現)</label>
-            <div class="field-label-actions">
-              <button
-                type="button"
-                class="google-translate-btn"
-                data-translate-target="finding"
-              >前往翻譯</button>
-              <button
-                type="button"
-                class="whatsapp-inline-btn"
-                data-whatsapp-target="finding"
-                data-whatsapp-label="Finding (發現)"
-                aria-label="透過 WhatsApp 匯報 Finding"
-              >
-                <img
-                  src="whatsapp_icon.png"
-                  alt="WhatsApp"
-                  class="whatsapp-inline-icon"
-                >
-              </button>
-            </div>
-          </div>
+         <div class="field-row">
+           <div class="field-label-row">
+             <label for="finding" class="emphasis-label">Finding (發現)</label>
+             <div class="field-label-actions">
+               <button
+                 type="button"
+                 class="google-translate-btn"
+                 data-translate-target="finding"
+               >前往翻譯</button>
+               <button
+                 type="button"
+                 class="copy-inline-btn"
+                 data-copy-target="finding"
+               >Copy</button>
+             </div>
+           </div>
           <select id="finding-mode" class="memo-select">
             <option value="FREE">手動輸入文字</option>
             <option value="TBC">TBC</option>
@@ -154,30 +160,22 @@
             placeholder="手動輸入文字"
           ></textarea>
         </div>
-        <div class="field-row">
-          <div class="field-label-row">
-            <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
-            <div class="field-label-actions">
-              <button
-                type="button"
-                class="google-translate-btn"
-                data-translate-target="root-cause"
-              >前往翻譯</button>
-              <button
-                type="button"
-                class="whatsapp-inline-btn"
-                data-whatsapp-target="root-cause"
-                data-whatsapp-label="Root Cause (原因)"
-                aria-label="透過 WhatsApp 匯報 Root Cause"
-              >
-                <img
-                  src="whatsapp_icon.png"
-                  alt="WhatsApp"
-                  class="whatsapp-inline-icon"
-                >
-              </button>
-            </div>
-          </div>
+         <div class="field-row">
+           <div class="field-label-row">
+             <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
+             <div class="field-label-actions">
+               <button
+                 type="button"
+                 class="google-translate-btn"
+                 data-translate-target="root-cause"
+               >前往翻譯</button>
+               <button
+                 type="button"
+                 class="copy-inline-btn"
+                 data-copy-target="root-cause"
+               >Copy</button>
+             </div>
+           </div>
           <select id="root-cause-mode" class="memo-select">
             <option value="FREE">手動輸入文字</option>
             <option value="TBC">TBC</option>
@@ -189,30 +187,22 @@
             placeholder="手動輸入文字"
           ></textarea>
         </div>
-        <div class="field-row">
-          <div class="field-label-row">
-            <label for="action-taken" class="emphasis-label">Action Taken</label>
-            <div class="field-label-actions">
-              <button
-                type="button"
-                class="google-translate-btn"
-                data-translate-target="action-taken"
-              >前往翻譯</button>
-              <button
-                type="button"
-                class="whatsapp-inline-btn"
-                data-whatsapp-target="action-taken"
-                data-whatsapp-label="Action Taken"
-                aria-label="透過 WhatsApp 匯報 Action Taken"
-              >
-                <img
-                  src="whatsapp_icon.png"
-                  alt="WhatsApp"
-                  class="whatsapp-inline-icon"
-                >
-              </button>
-            </div>
-          </div>
+         <div class="field-row">
+           <div class="field-label-row">
+             <label for="action-taken" class="emphasis-label">Action Taken</label>
+             <div class="field-label-actions">
+               <button
+                 type="button"
+                 class="google-translate-btn"
+                 data-translate-target="action-taken"
+               >前往翻譯</button>
+               <button
+                 type="button"
+                 class="copy-inline-btn"
+                 data-copy-target="action-taken"
+               >Copy</button>
+             </div>
+           </div>
           <select id="action-taken-mode" class="memo-select">
             <option value="FREE">手動輸入文字</option>
             <option value="TBC">TBC</option>
@@ -224,30 +214,22 @@
             placeholder="手動輸入文字"
           ></textarea>
         </div>
-        <div class="field-row">
-          <div class="field-label-row">
-            <label for="resume-time" class="emphasis-label">Resume time</label>
-            <div class="field-label-actions">
-              <button
-                type="button"
-                class="google-translate-btn"
-                data-translate-target="resume-time"
-              >前往翻譯</button>
-              <button
-                type="button"
-                class="whatsapp-inline-btn"
-                data-whatsapp-target="resume-time"
-                data-whatsapp-label="Resume time"
-                aria-label="透過 WhatsApp 匯報 Resume time"
-              >
-                <img
-                  src="whatsapp_icon.png"
-                  alt="WhatsApp"
-                  class="whatsapp-inline-icon"
-                >
-              </button>
-            </div>
-          </div>
+         <div class="field-row">
+           <div class="field-label-row">
+             <label for="resume-time" class="emphasis-label">Resume time</label>
+             <div class="field-label-actions">
+               <button
+                 type="button"
+                 class="google-translate-btn"
+                 data-translate-target="resume-time"
+               >前往翻譯</button>
+               <button
+                 type="button"
+                 class="copy-inline-btn"
+                 data-copy-target="resume-time"
+               >Copy</button>
+             </div>
+           </div>
           <select id="resume-time-mode" class="memo-select">
             <option value="TBC">TBC</option>
             <option value="RESOLVED">回復時間</option>
@@ -263,6 +245,20 @@
       </div>
       <div class="excel-row">
         <button id="excel-btn" class="excel-btn" type="button">生成Excel</button>
+        <button
+          id="whatsapp-summary-btn"
+          class="secondary-btn whatsapp-btn"
+          type="button"
+        >
+          <img
+            src="whatsapp_icon.png"
+            alt="WhatsApp"
+            class="whatsapp-icon"
+            width="30"
+            height="30"
+          >
+          WhatsApp 摘要
+        </button>
       </div>
       <textarea id="sequence" hidden></textarea>
     </section>
@@ -282,6 +278,20 @@
       <div class="field-row translate-button-row">
         <button type="button" id="english-translate-btn" class="translate-btn">翻譯</button>
       </div>
+        <div
+          id="translate-overlay"
+          class="translate-overlay hidden"
+          aria-live="polite"
+        >
+          <div class="translate-overlay-content">
+            <div class="translate-overlay-text">翻譯中</div>
+            <div class="translate-overlay-dots">
+              <span class="translate-overlay-dot"></span>
+              <span class="translate-overlay-dot"></span>
+              <span class="translate-overlay-dot"></span>
+            </div>
+          </div>
+        </div>
         <div
           id="translate-cards-wrapper"
           class="translate-cards-wrapper hidden"
@@ -399,17 +409,18 @@
 
   <template id="row-template">
     <div class="note-row">
-      <div class="move-cell">
-        <button type="button" class="move-row-btn" aria-label="設定此列（移動或刪除）">⚙️</button>
-        <div class="row-actions-popup hidden">
-          <button type="button" class="row-action-btn row-action-up">向上</button>
-          <button type="button" class="row-action-btn row-action-down">向下</button>
-          <button type="button" class="row-action-btn row-action-add-below">向下加行</button>
-          <button type="button" class="row-action-btn row-action-delete">刪除</button>
-          <button type="button" class="row-action-btn row-action-go-translate go-translate-btn" data-source="row-desc">前往翻譯</button>
-          <button type="button" class="row-action-btn row-action-cancel">取消</button>
-        </div>
-      </div>
+       <div class="move-cell">
+         <button type="button" class="move-row-btn" aria-label="設定此列（移動或刪除）">⚙️</button>
+         <div class="row-actions-popup hidden">
+           <button type="button" class="row-action-btn row-action-up">向上</button>
+           <button type="button" class="row-action-btn row-action-down">向下</button>
+           <button type="button" class="row-action-btn row-action-add-below">向下加行</button>
+           <button type="button" class="row-action-btn row-action-delete">刪除</button>
+           <button type="button" class="row-action-btn row-action-go-translate go-translate-btn" data-source="row-desc">前往翻譯</button>
+           <button type="button" class="row-action-btn row-action-copy">Copy</button>
+           <button type="button" class="row-action-btn row-action-cancel">取消</button>
+         </div>
+       </div>
       <div class="time-cell">
         <input type="text" class="time-input" placeholder="時間..." readonly>
         <div class="time-popup hidden">

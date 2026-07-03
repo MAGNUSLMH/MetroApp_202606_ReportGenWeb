@@ -513,6 +513,7 @@ function attachRowEvents(rowEl) {
   const actionDeleteBtn = rowEl.querySelector(".row-action-delete");
   const actionCancelBtn = rowEl.querySelector(".row-action-cancel");
   const actionGoTranslateBtn = rowEl.querySelector(".row-action-go-translate");
+  const actionCopyBtn = rowEl.querySelector(".row-action-copy");
 
   const radioName = "time-format-" + rowEl.dataset.rowId;
 
@@ -743,6 +744,16 @@ function attachRowEvents(rowEl) {
       if (englishOriginalInputEl) {
         englishOriginalInputEl.focus();
       }
+    });
+  }
+
+  if (actionCopyBtn) {
+    actionCopyBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (actionsPopup) actionsPopup.classList.add("hidden");
+
+      const text = descInput ? descInput.value : "";
+      copyTextWithAlert(text);
     });
   }
 
@@ -1136,6 +1147,29 @@ function sendContentToWhatsapp(content) {
   }
 }
 
+function copyTextWithAlert(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) {
+    window.alert("目前沒有可複製的內容。");
+    return;
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard
+      .writeText(trimmed)
+      .then(function () {
+        window.alert("已複製到剪貼簿。");
+      })
+      .catch(function () {
+        window.alert(
+          "無法自動複製到剪貼簿，請手動複製以下內容：\n\n" + trimmed
+        );
+      });
+  } else {
+    window.alert("請手動複製以下內容：\n\n" + trimmed);
+  }
+}
+
 function areSummaryFieldsFilled() {
   const fd = faultDescriptionInput ? faultDescriptionInput.value.trim() : "";
   const finding = findingInput ? findingInput.value.trim() : "";
@@ -1143,6 +1177,19 @@ function areSummaryFieldsFilled() {
   const at = actionTakenInput ? actionTakenInput.value.trim() : "";
   const rt = resumeTimeInput ? resumeTimeInput.value.trim() : "";
   return fd && finding && rc && at && rt;
+}
+
+function buildSummaryWhatsappContent() {
+  const finding = findingInput ? findingInput.value.trim() : "";
+  const rc = rootCauseInput ? rootCauseInput.value.trim() : "";
+  const at = actionTakenInput ? actionTakenInput.value.trim() : "";
+  const rt = resumeTimeInput ? resumeTimeInput.value.trim() : "";
+
+  if (!finding && !rc && !at && !rt) {
+    return null;
+  }
+
+  return [finding, rc, at, rt].join("\n\n");
 }
 
 function buildSequenceTextForExcel() {
@@ -1241,6 +1288,21 @@ if (whatsappBtn) {
   });
 }
 
+const whatsappSummaryBtn = document.getElementById("whatsapp-summary-btn");
+
+if (whatsappSummaryBtn) {
+  whatsappSummaryBtn.addEventListener("click", function () {
+    const content = buildSummaryWhatsappContent();
+    if (!content) {
+      window.alert(
+        "請先填寫 Finding, Root Cause, Action Taken 及 Resume time，再透過 WhatsApp 發送摘要。"
+      );
+      return;
+    }
+    sendContentToWhatsapp(content);
+  });
+}
+
 const inlineWhatsappButtons = Array.from(
   document.querySelectorAll(".whatsapp-inline-btn")
 );
@@ -1267,6 +1329,33 @@ inlineWhatsappButtons.forEach(function (btn) {
 
     const content = label ? label + ": " + rawText : rawText;
     sendContentToWhatsapp(content);
+  });
+});
+
+const inlineCopyButtons = Array.from(
+  document.querySelectorAll(".copy-inline-btn")
+);
+
+inlineCopyButtons.forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    const targetId = btn.getAttribute("data-copy-target");
+    const targetEl = targetId ? document.getElementById(targetId) : null;
+
+    let rawText = "";
+    if (targetEl) {
+      if ("value" in targetEl) {
+        rawText = String(targetEl.value || "").trim();
+      } else {
+        rawText = String(targetEl.textContent || "").trim();
+      }
+    }
+
+    if (!rawText) {
+      window.alert("目前沒有可複製的內容。");
+      return;
+    }
+
+    copyTextWithAlert(rawText);
   });
 });
 
