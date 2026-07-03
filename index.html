@@ -36,7 +36,7 @@
                 type="button"
                 class="google-translate-btn"
                 data-translate-target="fault-description"
-              >前往翻譯</button>
+              >轉英文</button>
               <button
                 type="button"
                 class="copy-inline-btn"
@@ -83,7 +83,7 @@
                 type="button"
                 class="memo-translate-btn go-translate-btn"
                 data-source="memo"
-              >前往翻譯</button>
+              >轉英文</button>
               <button
                 type="button"
                 class="copy-inline-btn"
@@ -107,7 +107,7 @@
             id="memo-text"
             class="bottom-textarea"
             rows="2"
-            placeholder="手動輸入文字..."
+            placeholder="手動"
           ></textarea>
           <div id="memo-delay-wrapper" class="memo-delay-wrapper hidden">
             <span class="memo-delay-label">Train delay</span>
@@ -141,7 +141,7 @@
                  type="button"
                  class="google-translate-btn"
                  data-translate-target="finding"
-               >前往翻譯</button>
+               >轉英文</button>
                <button
                  type="button"
                  class="copy-inline-btn"
@@ -157,7 +157,7 @@
             id="finding"
             class="bottom-textarea"
             rows="2"
-            placeholder="手動輸入文字"
+            placeholder="手動"
           ></textarea>
         </div>
          <div class="field-row">
@@ -168,7 +168,7 @@
                  type="button"
                  class="google-translate-btn"
                  data-translate-target="root-cause"
-               >前往翻譯</button>
+               >轉英文</button>
                <button
                  type="button"
                  class="copy-inline-btn"
@@ -184,7 +184,7 @@
             id="root-cause"
             class="bottom-textarea"
             rows="2"
-            placeholder="手動輸入文字"
+            placeholder="手動"
           ></textarea>
         </div>
          <div class="field-row">
@@ -195,7 +195,7 @@
                  type="button"
                  class="google-translate-btn"
                  data-translate-target="action-taken"
-               >前往翻譯</button>
+               >轉英文</button>
                <button
                  type="button"
                  class="copy-inline-btn"
@@ -211,7 +211,7 @@
             id="action-taken"
             class="bottom-textarea"
             rows="2"
-            placeholder="手動輸入文字"
+            placeholder="手動"
           ></textarea>
         </div>
          <div class="field-row">
@@ -222,7 +222,7 @@
                  type="button"
                  class="google-translate-btn"
                  data-translate-target="resume-time"
-               >前往翻譯</button>
+               >轉英文</button>
                <button
                  type="button"
                  class="copy-inline-btn"
@@ -239,7 +239,7 @@
             id="resume-time"
             class="bottom-textarea"
             rows="2"
-            placeholder="手動輸入文字"
+            placeholder="手動"
           ></textarea>
         </div>
       </div>
@@ -257,7 +257,7 @@
             width="30"
             height="30"
           >
-          WhatsApp 摘要
+          WhatsApp
         </button>
       </div>
       <textarea id="sequence" hidden></textarea>
@@ -298,7 +298,8 @@
           aria-live="polite"
         >
           <div class="translate-cards-row">
-            <article class="translate-card translate-card-first">
+            <!-- 第一個翻譯 : GPT-5.1 (MTR語言) UI 已被隱藏 -->
+            <article class="translate-card translate-card-first" hidden aria-hidden="true">
               <h3 class="subheading translate-option-header translate-option-header-1">
                 第一個翻譯 : GPT-5.1 (MTR語言)
               </h3>
@@ -337,14 +338,14 @@
 
             <article class="translate-card translate-card-second">
               <h3 class="subheading translate-option-header translate-option-header-2">
-                第二個翻譯 : Google Translate
+                Google Translate
               </h3>
               <div class="translate-card-row">
                 <button
                   type="button"
                   id="second-translate-adopt-btn"
                   class="translate-card-btn translate-card-btn-adopt"
-                  aria-label="採用第二個英文翻譯結果"
+                  aria-label="採用翻譯結果"
                 >
                   ✅
                 </button>
@@ -352,7 +353,6 @@
                   id="english-edited"
                   class="bottom-textarea english-textarea translate-option-textarea-2"
                   rows="2"
-                  readonly
                 ></textarea>
               </div>
               <div class="translate-card-row">
@@ -360,7 +360,7 @@
                   type="button"
                   id="second-translate-back-btn"
                   class="translate-card-btn translate-card-btn-back"
-                  aria-label="將第二個翻譯的中文內容移回原本中文文字欄位"
+                  aria-label="將翻譯的中文內容移回原本中文文字欄位"
                 >
                   ⬆️
                 </button>
@@ -416,7 +416,7 @@
            <button type="button" class="row-action-btn row-action-down">向下</button>
            <button type="button" class="row-action-btn row-action-add-below">向下加行</button>
            <button type="button" class="row-action-btn row-action-delete">刪除</button>
-           <button type="button" class="row-action-btn row-action-go-translate go-translate-btn" data-source="row-desc">前往翻譯</button>
+           <button type="button" class="row-action-btn row-action-go-translate go-translate-btn" data-source="row-desc">轉英文</button>
            <button type="button" class="row-action-btn row-action-copy">Copy</button>
            <button type="button" class="row-action-btn row-action-cancel">取消</button>
          </div>

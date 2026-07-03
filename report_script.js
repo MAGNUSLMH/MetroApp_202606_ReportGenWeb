@@ -213,7 +213,7 @@ function applyResumeTimeModeFromSelect() {
   } else {
     // FREE
     resumeTimeInput.disabled = false;
-    resumeTimeInput.placeholder = "手動輸入文字";
+    resumeTimeInput.placeholder = "手動";
   }
 
   resumeTimeInput.style.height = "auto";
@@ -275,7 +275,7 @@ function applyMemoModeFromSelect() {
     memoTextInput.placeholder = "(已漏空)";
   } else if (mode === "FREE") {
     memoTextInput.disabled = false;
-    memoTextInput.placeholder = "手動輸入文字...";
+    memoTextInput.placeholder = "手動";
     if (
       memoTextInput.value === "TBC" ||
       memoTextInput.value === "No train delay" ||
@@ -317,9 +317,9 @@ function applySummaryModeFromSelect(modeSelect, textInput) {
     textInput.value = "TBC";
     textInput.placeholder = "TBC";
   } else {
-    // FREE (手動輸入文字)
+    // FREE (手動)
     textInput.disabled = false;
-    textInput.placeholder = "手動輸入文字";
+    textInput.placeholder = "手動";
     if (textInput.value === "TBC") {
       textInput.value = "";
     }
@@ -1189,7 +1189,27 @@ function buildSummaryWhatsappContent() {
     return null;
   }
 
-  return [finding, rc, at, rt].join("\n\n");
+  // Add subheadings for the WhatsApp 摘要輸出：
+  // Subheading 1: Finding
+  // Subheading 2: Root Cause
+  // Subheading 3: Action Taken
+  // Subheading 4: Resume time
+  const sections = [];
+
+  if (finding) {
+    sections.push("Finding\n" + finding);
+  }
+  if (rc) {
+    sections.push("Root Cause\n" + rc);
+  }
+  if (at) {
+    sections.push("Action Taken\n" + at);
+  }
+  if (rt) {
+    sections.push("Resume time\n" + rt);
+  }
+
+  return sections.join("\n\n");
 }
 
 function buildSequenceTextForExcel() {

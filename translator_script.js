@@ -1,6 +1,6 @@
 // translator_script.js
 // Logic specific to the translate UI: calling PHP proxies for translation,
-// handling GPT + Google results, and wiring "前往翻譯" buttons.
+// handling GPT + Google results, and wiring "轉英文" buttons.
 
 const englishOriginalInput = document.getElementById("english-original");
 const englishGoogleInput = document.getElementById("english-google");
@@ -204,6 +204,9 @@ async function populateDoubleTranslationCards(gptEnglish, googleEnglish) {
 
   const tasks = [];
 
+  // 第一個翻譯 (GPT-5.1, MTR 語言) 的中文回譯已停用，僅保留第二個翻譯的回譯。
+  // 原本第一個翻譯的回譯程式碼已被註解以避免呼叫 GPT 相關服務。
+  /*
   if (firstTranslateChineseInput && gptEnglish) {
     tasks.push(
       translateEnglishBackToChinese(gptEnglish)
@@ -226,6 +229,7 @@ async function populateDoubleTranslationCards(gptEnglish, googleEnglish) {
         })
     );
   }
+  */
 
   if (secondTranslateChineseInput && googleEnglish) {
     tasks.push(
@@ -259,7 +263,13 @@ async function populateDoubleTranslationCards(gptEnglish, googleEnglish) {
   }
 }
 
+/**
+ * GPT-5.1 (MTR 語言) 第一個翻譯已停用。
+ * 保留函式簽名以避免其他程式碼出現 undefined，但不再呼叫 gpt_proxy.php。
+ */
 async function translateWithGPT(chineseText) {
+  // 原本的 GPT 呼叫程式碼已被註解，避免實際對後端發出請求。
+  /*
   try {
     const response = await fetch("gpt_proxy.php", {
       method: "POST",
@@ -307,6 +317,9 @@ async function translateWithGPT(chineseText) {
     console.error("GPT service error:", error);
     throw new Error("GPT 服務回應錯誤: " + error.message);
   }
+  */
+
+  throw new Error("GPT 第一個翻譯 (MTR 語言) 已停用。");
 }
 
 async function translateWithT5(englishText) {
@@ -583,10 +596,11 @@ function initEnglishTranslate() {
       secondTranslateChineseInput.style.height = "";
     }
 
-    let gptTranslatedValue = "";
     let googleTranslatedValue = "";
 
     try {
+      // 第一個翻譯 (GPT-5.1, MTR 語言) 已停用，以下原有 GPT 呼叫程式碼已被註解：
+      /*
       try {
         const gptTranslated = await translateWithGPT(raw);
         gptTranslatedValue = gptTranslated || "";
@@ -605,6 +619,7 @@ function initEnglishTranslate() {
         englishGoogleInput.style.height =
           englishGoogleInput.scrollHeight + "px";
       }
+      */
 
       const googleTranslatedRaw = await translateReport(raw);
       const googleTranslated = ensureLastLineHasFullStop(
@@ -617,10 +632,9 @@ function initEnglishTranslate() {
       englishEditedInput.style.height =
         englishEditedInput.scrollHeight + "px";
 
-      // After both English translations are ready, perform English->Chinese
-      // back-translation and show the cards.
+      // 目前僅依 Google 翻譯結果進行英文 -> 中文回譯並顯示卡片。
       await populateDoubleTranslationCards(
-        gptTranslatedValue,
+        "",
         googleTranslatedValue
       );
     } catch (err) {
@@ -672,7 +686,7 @@ function initTranslateChoiceButtons() {
   function applySelectedTranslation(fromTextarea) {
     if (!currentTranslateTargetTextarea) {
       window.alert(
-        "請先在事件報表頁按「前往翻譯」，選擇要更新的欄位。\n然後再按這裡選擇翻譯。"
+        "請先在事件報表頁按「轉英文」，選擇要更新的欄位。\n然後再按這裡選擇翻譯。"
       );
       return;
     }
@@ -689,7 +703,7 @@ function initTranslateChoiceButtons() {
     }
 
     const ok = window.confirm(
-      "請確認是否套用此翻譯結果並返回事件報表？"
+      "是否套用此翻譯結果並返回事件報表？"
     );
     if (!ok) {
       return;
@@ -756,7 +770,7 @@ function initDoubleTranslateCardButtons() {
   function applySelectedTranslationToTarget(fromTextarea) {
     if (!currentTranslateTargetTextarea) {
       window.alert(
-        "請先在事件報表頁按「前往翻譯」，選擇要更新的欄位。\n然後再按卡片上的 ✅ 按鈕。"
+        "請先在事件報表頁按「轉英文」，選擇要更新的欄位。\n然後再按卡片上的 ✅ 按鈕。"
       );
       return;
     }
@@ -773,7 +787,7 @@ function initDoubleTranslateCardButtons() {
     }
 
     const ok = window.confirm(
-      "請確認是否套用此翻譯結果並返回事件報表？"
+      "是否套用此翻譯結果並返回事件報表？"
     );
     if (!ok) {
       return;
@@ -838,7 +852,7 @@ function initDoubleTranslateCardButtons() {
     }
 
     const ok = window.confirm(
-      "請確認是否將此雙重翻譯的中文內容移回「原本中文文字」欄位以便進一步修改？"
+      "是否再次進行翻譯？"
     );
     if (!ok) {
       return;

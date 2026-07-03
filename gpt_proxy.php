@@ -1,9 +1,10 @@
 <?php
 // gpt_proxy.php
 // Proxy endpoint for Azure OpenAI GPT used by the web UI.
-// Accepts the original Chinese text from the frontend (via JSON POST / GET / POST form)
-// and returns a JSON payload with a translated English string in MTR-style language.
+// GPT-based first translation (第一個翻譯 : GPT-5.1 (MTR語言)) has been disabled.
+// The original implementation is kept below in a block comment for reference only.
 
+/*
 // Do not leak PHP warnings/notices into the JSON response.
 ini_set('display_errors', '0');
 
@@ -136,5 +137,16 @@ $aiReply = (string)$decoded['choices'][0]['message']['content'];
 echo json_encode([
     "original"   => $text,
     "translated" => $aiReply,
+], JSON_UNESCAPED_UNICODE);
+exit;
+*/
+
+// Minimal stub: return a JSON error indicating that GPT-based translation is disabled.
+ini_set('display_errors', '0');
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin', '*');
+
+echo json_encode([
+    'error' => 'GPT 第一個翻譯 (MTR 語言) 已停用。',
 ], JSON_UNESCAPED_UNICODE);
 exit;
