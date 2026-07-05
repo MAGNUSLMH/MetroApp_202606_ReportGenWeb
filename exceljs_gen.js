@@ -2,13 +2,24 @@
 (function () {
   const ExcelJS = window.ExcelJS;
   if (!ExcelJS) {
-    console.error("ExcelJS library is not loaded. Include exceljs.min.js before exceljs_gen.js.");
-    return;
+    console.error(
+      "ExcelJS library is not loaded. Include exceljs.min.js before exceljs_gen.js."
+    );
+    // We still define window.downloadExcel so the UI can show a clear
+    // message instead of silently doing nothing. The actual guard will
+    // run inside the function at call time.
   }
 
   // Expose globally so browser scripts can call it
   window.downloadExcel = async function () {
-  const workbook = new ExcelJS.Workbook();
+  // Guard in case ExcelJS failed to load or is not ready yet.
+  if (!window.ExcelJS || !window.ExcelJS.Workbook) {
+    window.alert("Excel 產生功能尚未完整載入，請稍後再試。");
+    return;
+  }
+
+  const ExcelJSLocal = window.ExcelJS;
+  const workbook = new ExcelJSLocal.Workbook();
   const sheet = workbook.addWorksheet("Fault Report");
 
   // Column A width (approx 1000px)
@@ -84,7 +95,21 @@
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   // Hint logical folder + filename; actual download folder depends on browser settings
-  link.download = "MTR_IR/" + fileName;
+  link.download = "MTR_IR_" + fileName;
+
+  // Attach link to DOM so mobile browsers treat the click as a valid
+  // user-initiated download.
+  link.style.display = "none";
+  document.body.appendChild(link);
+
   link.click();
+
+  // Clean up DOM and object URL.
+  setTimeout(function () {
+    if (link.parentNode) {
+      link.parentNode.removeChild(link);
+    }
+    URL.revokeObjectURL(link.href);
+  }, 0);
   };
 })();

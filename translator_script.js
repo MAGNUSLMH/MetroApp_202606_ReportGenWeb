@@ -39,45 +39,81 @@ const secondTranslateBackBtn = document.getElementById(
 );
 const translateCardsWrapper = document.getElementById("translate-cards-wrapper");
 
+// Promise used to coordinate a single pre-warm request so we don't
+// start multiple parallel iframe loads and to allow callers to await
+// cookie readiness before making the real translation call.
+let translateProxyCookieWarmPromise = null;
+
 function ensureTranslateProxyCookie() {
-  try {
-    const hostname = window.location && window.location.hostname;
-    if (!hostname || hostname.indexOf("free.nf") === -1) {
-      return;
-    }
-
-    if (document.cookie && document.cookie.indexOf("__test=") !== -1) {
-      return;
-    }
-
-    if (!document.body) return;
-
-    if (document.getElementById("translate-proxy-bootstrap-frame")) {
-      return;
-    }
-
-    const iframe = document.createElement("iframe");
-    iframe.id = "translate-proxy-bootstrap-frame";
-    iframe.src = "translate_proxy.php";
-    iframe.style.display = "none";
-    iframe.setAttribute("aria-hidden", "true");
-    iframe.onload = function () {
-      setTimeout(function () {
-        try {
-          if (iframe && iframe.parentNode) {
-            iframe.parentNode.removeChild(iframe);
-          }
-        } catch (e) {}
-      }, 0);
-    };
-
-    document.body.appendChild(iframe);
-  } catch (e) {
-    console.error(
-      "Failed to pre-warm translate_proxy.php cookie challenge:",
-      e
-    );
+  if (translateProxyCookieWarmPromise) {
+    return translateProxyCookieWarmPromise;
   }
+
+  translateProxyCookieWarmPromise = new Promise(function (resolve) {
+    try {
+      const hostname = window.location && window.location.hostname;
+      if (!hostname || hostname.indexOf("free.nf") === -1) {
+        resolve();
+        return;
+      }
+
+      // If the hosting cookie is already present, nothing to do.
+      if (document.cookie && document.cookie.indexOf("__test=") !== -1) {
+        resolve();
+        return;
+      }
+
+      if (!document.body) {
+        resolve();
+        return;
+      }
+
+      // If a bootstrap iframe already exists, give it a short window
+      // to complete instead of creating another one.
+      const existingFrame = document.getElementById(
+        "translate-proxy-bootstrap-frame"
+      );
+      if (existingFrame) {
+        setTimeout(resolve, 2000);
+        return;
+      }
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "translate-proxy-bootstrap-frame";
+      iframe.src = "translate_proxy.php";
+      iframe.style.display = "none";
+      iframe.setAttribute("aria-hidden", "true");
+
+      // Safety timeout so we never block the translation flow forever
+      // if something goes wrong with the iframe load.
+      const timeoutId = setTimeout(function () {
+        resolve();
+      }, 5000);
+
+      iframe.onload = function () {
+        clearTimeout(timeoutId);
+        resolve();
+        setTimeout(function () {
+          try {
+            if (iframe && iframe.parentNode) {
+              iframe.parentNode.removeChild(iframe);
+            }
+          } catch (e) {}
+        }, 0);
+      };
+
+      document.body.appendChild(iframe);
+    } catch (e) {
+      console.error(
+        "Failed to pre-warm translate_proxy.php cookie challenge:",
+        e
+      );
+      // Fail open: continue without blocking the translation request.
+      resolve();
+    }
+  });
+
+  return translateProxyCookieWarmPromise;
 }
 
 async function translateReport(rawText) {
@@ -567,7 +603,16 @@ function initEnglishTranslate() {
 
     const overlayEl = document.getElementById("translate-overlay");
 
-    ensureTranslateProxyCookie();
+    // Wait for the hosting provider's cookie challenge (if any) to complete
+    // before sending the actual translation request, to avoid racing the
+    // pre-warm iframe and the fetch() call to translate_proxy.php.
+    try {
+      await ensureTranslateProxyCookie();
+    } catch (e) {
+      // Fail open: if pre-warm fails we still attempt the translation so
+      // the user can see the normal error handling path.
+      console.error("ensureTranslateProxyCookie failed before translate:", e);
+    }
 
     englishTranslateBtn.disabled = true;
     englishTranslateBtn.classList.add("translate-btn-animating");
@@ -997,6 +1042,16 @@ if (firstTranslateChineseInput && typeof setupAutoResize === "function") {
 }
 if (secondTranslateChineseInput && typeof setupAutoResize === "function") {
   setupAutoResize(secondTranslateChineseInput);
+}
+
+// Pre-warm the translate_proxy.php cookie challenge once on page load
+// for hosts that use a __test cookie (e.g. free.nf). This reduces the
+// likelihood that the first actual translation request will hit the
+// "cookies not enabled" challenge page.
+try {
+  ensureTranslateProxyCookie();
+} catch (e) {
+  console.error("Initial ensureTranslateProxyCookie failed:", e);
 }
 
 initGoogleTranslateButtons();

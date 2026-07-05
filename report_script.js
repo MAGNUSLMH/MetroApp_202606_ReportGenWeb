@@ -213,7 +213,7 @@ function applyResumeTimeModeFromSelect() {
   } else {
     // FREE
     resumeTimeInput.disabled = false;
-    resumeTimeInput.placeholder = "手動";
+    resumeTimeInput.placeholder = "輸入...";
   }
 
   resumeTimeInput.style.height = "auto";
@@ -275,7 +275,7 @@ function applyMemoModeFromSelect() {
     memoTextInput.placeholder = "(已漏空)";
   } else if (mode === "FREE") {
     memoTextInput.disabled = false;
-    memoTextInput.placeholder = "手動";
+    memoTextInput.placeholder = "輸入...";
     if (
       memoTextInput.value === "TBC" ||
       memoTextInput.value === "No train delay" ||
@@ -319,7 +319,7 @@ function applySummaryModeFromSelect(modeSelect, textInput) {
   } else {
     // FREE (手動)
     textInput.disabled = false;
-    textInput.placeholder = "手動";
+    textInput.placeholder = "輸入...";
     if (textInput.value === "TBC") {
       textInput.value = "";
     }
@@ -1121,30 +1121,36 @@ window.buildExportClipboardContent =
   window.buildExportClipboardContent || buildExportClipboardContent;
 
 function sendContentToWhatsapp(content) {
-  if (!content) {
+  const trimmed = (content || "").trim();
+  if (!trimmed) {
     window.alert("目前沒有可匯出的內容。");
     return;
   }
 
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard
-      .writeText(content)
-      .then(function () {
-        window.open(WHATSAPP_GROUP_URL, "_blank");
-      })
-      .catch(function () {
-        window.open(WHATSAPP_GROUP_URL, "_blank");
-        window.alert(
-          "無法自動複製到剪貼簿，請在 WhatsApp 中手動貼上以下內容：\n\n" +
-            content
-        );
-      });
+  // Use WhatsApp's official click-to-chat URL with a prefilled text message.
+  // This opens WhatsApp (or WhatsApp Web) with the message already placed
+  // in the input box, ready to be sent.
+  const encodedText = encodeURIComponent(trimmed);
+  const whatsappUrl = "https://wa.me/85266560895?text=" + encodedText;
+
+  // Open WhatsApp with the prefilled message as part of the same user gesture.
+  window.open(whatsappUrl, "_blank");
+
+  // Still attempt to copy the content to the clipboard so it is available
+  // for manual pasting or other uses, with graceful fallbacks.
+  /*if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(trimmed).catch(function () {
+      window.alert(
+        "無法自動複製到剪貼簿，但 WhatsApp 已預先填入訊息。\n\n" +
+          "如果需要在其他地方使用，請自行選取並複製 WhatsApp 內的文字。"
+      );
+    });
   } else {
-    window.open(WHATSAPP_GROUP_URL, "_blank");
     window.alert(
-      "請在 WhatsApp 中手動貼上以下內容：\n\n" + content
+      "此裝置不支援自動複製到剪貼簿，但 WhatsApp 已預先填入訊息。\n\n" +
+        "如果需要在其他地方使用，請自行選取並複製 WhatsApp 內的文字。"
     );
-  }
+  }*/
 }
 
 function copyTextWithAlert(text) {
