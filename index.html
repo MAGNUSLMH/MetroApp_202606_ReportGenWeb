@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cactus+Classical+Serif&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="./ReportGen_icon.png" type="image/png">
   <!-- https://www.flaticon.com/free-icon/review_710935 -->
@@ -20,12 +22,24 @@
     <h1>事件報表</h1>
     <button id="reset-btn" class="reset-btn" type="button" aria-label="清除並重設為預設狀態">🗑️</button>
   </header>
-  <!-- Page title bar -->
+    <!-- Page title bar -->
   <div id="page-title-bar" class="page-title-bar">
     <span id="page-title-text">事件報表</span>
   </div>
 
+  <!-- Fixed undo/redo toolbar for report content -->
+    <div class="history-toolbar">
+    <button id="undo-btn" class="history-btn" type="button" aria-label="復原最近變更" disabled>
+      ↩ Undo
+    </button>
+    <button id="redo-btn" class="history-btn" type="button" aria-label="重做最近復原" disabled>
+      ↪ Redo
+    </button>
+  </div>
+
+
   <main id="report-main" class="app-main">
+
     <section class="note-container">
       <div class="top-fields">
         <div class="field-row">
@@ -102,7 +116,7 @@
             <option value="FREE">手動輸入文字...</option>
           </select>
         </div>
-        <div class="field-row memo-text-row">
+        <div class="field-row memo-text-row smartfill-target-hit-area" data-smartfill-target="memo-text">
           <textarea
             id="memo-text"
             class="bottom-textarea"
@@ -133,7 +147,7 @@
       </div>
       <br>
       <div class="bottom-fields">
-         <div class="field-row">
+         <div class="field-row smartfill-target-hit-area" data-smartfill-target="finding">
            <div class="field-label-row">
              <label for="finding" class="emphasis-label">Finding (發現)</label>
              <div class="field-label-actions">
@@ -160,7 +174,7 @@
             placeholder="輸入..."
           ></textarea>
         </div>
-         <div class="field-row">
+         <div class="field-row smartfill-target-hit-area" data-smartfill-target="root-cause">
            <div class="field-label-row">
              <label for="root-cause" class="emphasis-label">Root Cause (原因)</label>
              <div class="field-label-actions">
@@ -187,7 +201,7 @@
             placeholder="輸入..."
           ></textarea>
         </div>
-         <div class="field-row">
+         <div class="field-row smartfill-target-hit-area" data-smartfill-target="action-taken">
            <div class="field-label-row">
              <label for="action-taken" class="emphasis-label">Action Taken</label>
              <div class="field-label-actions">
@@ -214,7 +228,7 @@
             placeholder="輸入..."
           ></textarea>
         </div>
-         <div class="field-row">
+         <div class="field-row smartfill-target-hit-area" data-smartfill-target="resume-time">
            <div class="field-label-row">
              <label for="resume-time" class="emphasis-label">Resume time</label>
              <div class="field-label-actions">
@@ -384,15 +398,58 @@
     </section>
   </main>
 
-  <main id="feedback-main" class="app-main hidden">
-    <section class="note-container feedback-container">
-      <h2 class="subheading">提供翻譯反饋</h2>
-      <p class="feedback-text">如翻譯有問題，請在此記錄並於 WhatsApp 匯報。</p>
-      <textarea id="feedback-notes" class="bottom-textarea" rows="3"></textarea>
-    </section>
-  </main>
+    <main id="smartfill-main" class="app-main hidden">
+      <section class="note-container smartfill-container">
+        <header class="smartfill-header">
+          <div class="smartfill-title-block">
+            <h2 class="subheading">快速輸入</h2>
+            <p class="smartfill-subtext">從歷史事件中快速搜尋與複製英文句子。</p>
+          </div>
+                    <div class="smartfill-toolbar">
+            <div class="smartfill-search-wrapper">
+              <span class="smartfill-search-icon" aria-hidden="true">🔍</span>
+                          <input
+                id="smartfill-search"
+                type="search"
+                class="smartfill-search-input"
+                placeholder="搜尋關鍵字（如 PSD 226、false alarm、LHS LLS...）"
+                autocomplete="off"
+              >
 
-  <footer class="app-footer">
+            </div>
+            <button
+              type="button"
+              id="smartfill-sort"
+              class="smartfill-sort-btn"
+            >
+              🅰️🅱️ 變更為以A-Z排序
+            </button>
+            <button
+              type="button"
+              id="smartfill-toggle-all"
+              class="smartfill-toggle-all-btn"
+            >
+              展開全部
+            </button>
+          </div>
+
+        </header>
+
+        <div id="smartfill-dashboard" class="smartfill-dashboard" aria-live="polite">
+          <!-- smartfill_script.js will render grouped sections and accordions here -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Smartfill apply overlay (灰色遮罩，用於從 Smartfill 套用文字到報表頁) -->
+    <div
+      id="smartfill-apply-overlay"
+      class="smartfill-apply-overlay hidden"
+      aria-hidden="true"
+    ></div>
+
+    <footer class="app-footer">
+
     <button type="button" class="footer-tab footer-tab-active" data-tab="report">
       <span class="footer-emoji" aria-hidden="true">📋</span>
       <span class="footer-label">事件報表</span>
@@ -401,9 +458,9 @@
       <span class="footer-emoji" aria-hidden="true">✏️</span>
       <span class="footer-label">英文翻譯</span>
     </button>
-    <button type="button" class="footer-tab" data-tab="feedback">
-      <span class="footer-emoji" aria-hidden="true">💬</span>
-      <span class="footer-label">提供翻譯反饋</span>
+    <button type="button" class="footer-tab" data-tab="smartfill">
+      <span class="footer-emoji" aria-hidden="true">💡</span>
+      <span class="footer-label">快速輸入</span>
     </button>
   </footer>
 
@@ -441,13 +498,15 @@
     </div>
   </template>
 
-  <!-- ExcelJS from CDN -->
+    <!-- ExcelJS from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <!-- Excel helper that exposes window.downloadExcel -->
   <script src="exceljs_gen.js"></script>
-  <!-- Main page logic split into general, report, and translator scripts -->
+  <!-- Main page logic split into general, report, translator and smartfill scripts -->
   <script src="general_script.js"></script>
   <script src="report_script.js"></script>
   <script src="translator_script.js"></script>
+  <script src="smartfill_script.js"></script>
 </body>
 </html>
+

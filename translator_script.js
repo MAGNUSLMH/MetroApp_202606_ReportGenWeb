@@ -757,7 +757,16 @@ function initTranslateChoiceButtons() {
     const targetEl = currentTranslateTargetTextarea;
 
     // Apply translated text immediately.
+    const prev = targetEl.value;
     targetEl.value = text;
+
+    // Record this adoption in the report history so Undo/Redo can step
+    // through translation changes.
+    try {
+      if (typeof window.recordSmartfillFieldChange === "function") {
+        window.recordSmartfillFieldChange(targetEl, prev, text);
+      }
+    } catch (e) {}
 
     // Visual flash indicating the field was updated.
     try {
@@ -774,15 +783,14 @@ function initTranslateChoiceButtons() {
       setTranslateTarget(null, "");
     }
 
-    // Clear translate tab inputs and return to the report tab.
+        // Clear translate tab inputs and return to the report tab.
     resetTranslateTabContent();
     if (typeof showTab === "function") {
       showTab("report");
     }
 
-    // Foolproof resize: run after the report tab becomes visible so
-    // scrollHeight is accurate even if the section was previously hidden.
-    function performResize() {
+    // Resize and then scroll to the updated field after the report tab is visible.
+    function performResizeAndScroll() {
       try {
         if (typeof window.resizeToContent === "function") {
           window.resizeToContent(targetEl);
@@ -790,15 +798,21 @@ function initTranslateChoiceButtons() {
           targetEl.style.height = "auto";
           targetEl.style.height = targetEl.scrollHeight + "px";
         }
+
+        if (typeof window.scrollFieldIntoViewWithHeaderOffset === "function") {
+          window.scrollFieldIntoViewWithHeaderOffset(targetEl);
+        }
       } catch (e) {}
     }
 
     if (typeof window.requestAnimationFrame === "function") {
-      window.requestAnimationFrame(performResize);
+      window.requestAnimationFrame(performResizeAndScroll);
     } else {
-      setTimeout(performResize, 0);
+      setTimeout(performResizeAndScroll, 0);
     }
+
   }
+
 
   selectFirstTranslateBtn.addEventListener("click", function () {
     applySelectedTranslation(englishGoogleInput);
@@ -838,8 +852,17 @@ function initDoubleTranslateCardButtons() {
       return;
     }
 
-    const targetEl = currentTranslateTargetTextarea;
+        const targetEl = currentTranslateTargetTextarea;
+    const prev = targetEl.value;
     targetEl.value = text;
+
+    // Record adoption into report history so Undo/Redo covers translation
+    // actions.
+    try {
+      if (typeof window.recordSmartfillFieldChange === "function") {
+        window.recordSmartfillFieldChange(targetEl, prev, text);
+      }
+    } catch (e) {}
 
     try {
       targetEl.classList.add("translate-updated-flash");
@@ -854,7 +877,7 @@ function initDoubleTranslateCardButtons() {
       setTranslateTarget(null, "");
     }
 
-    if (typeof showTab === "function") {
+        if (typeof showTab === "function") {
       showTab("report");
     }
 
@@ -862,7 +885,7 @@ function initDoubleTranslateCardButtons() {
     // remain visible when the user returns to the translate tab.
     hideDoubleTranslationCards();
 
-    function performResize() {
+    function performResizeAndScroll() {
       try {
         if (typeof window.resizeToContent === "function") {
           window.resizeToContent(targetEl);
@@ -870,15 +893,21 @@ function initDoubleTranslateCardButtons() {
           targetEl.style.height = "auto";
           targetEl.style.height = targetEl.scrollHeight + "px";
         }
+
+        if (typeof window.scrollFieldIntoViewWithHeaderOffset === "function") {
+          window.scrollFieldIntoViewWithHeaderOffset(targetEl);
+        }
       } catch (e) {}
     }
 
     if (typeof window.requestAnimationFrame === "function") {
-      window.requestAnimationFrame(performResize);
+      window.requestAnimationFrame(performResizeAndScroll);
     } else {
-      setTimeout(performResize, 0);
+      setTimeout(performResizeAndScroll, 0);
     }
+
   }
+
 
   function moveChineseToOriginal(sourceTextarea) {
     if (!englishOriginalInput) {

@@ -34,9 +34,20 @@ const whatsappBtn = document.getElementById("whatsapp-btn");
 const WHATSAPP_GROUP_URL =
   "https://chat.whatsapp.com/Hpseqf55gLrCsgoUtEtTn1?s=cl&p=a&mlu=0&ilr=0";
 
+// Undo/redo toolbar buttons
+const undoBtn = document.getElementById("undo-btn");
+const redoBtn = document.getElementById("redo-btn");
+
 let rowIdCounter = 0;
 
 const STORAGE_KEY = "fault_report_form_v1";
+const HISTORY_STORAGE_KEY = "fault_report_history_v1";
+
+// In-memory history stacks
+let undoStack = [];
+let redoStack = [];
+let isApplyingHistory = false;
+
 
 function formatTime(totalMinutes) {
   const h = Math.floor(totalMinutes / 60);
@@ -214,11 +225,14 @@ function applyResumeTimeModeFromSelect() {
     // FREE
     resumeTimeInput.disabled = false;
     resumeTimeInput.placeholder = "輸入...";
+    // Always give a fresh text box when switching to manual mode
+    resumeTimeInput.value = "";
   }
 
   resumeTimeInput.style.height = "auto";
   resumeTimeInput.style.height = resumeTimeInput.scrollHeight + "px";
 }
+
 
 function syncResumeTimeAutoIfNeeded() {
   if (!resumeTimeModeSelect || !resumeTimeInput) return;
@@ -248,9 +262,10 @@ function applyMemoModeFromSelect() {
   } else if (mode === "NO_DELAY") {
     memoTextInput.value = "No train delay";
     memoTextInput.placeholder = "No train delay";
-  } else if (mode === "DELAY") {
+    } else if (mode === "DELAY") {
     if (hasDelayControls) {
       memoDelayWrapper.classList.remove("hidden");
+      memoDelayMinsInput.value = "";
       const currentVal = memoTextInput.value.trim();
       if (!/^Train delay \d+ mins$/.test(currentVal)) {
         memoTextInput.value = "Train delay  mins";
@@ -268,6 +283,7 @@ function applyMemoModeFromSelect() {
       });
     }
   } else if (mode === "NO_INJURY") {
+
     memoTextInput.value = "No passenger injury";
     memoTextInput.placeholder = "No passenger injury";
   } else if (mode === "NONE") {
@@ -290,11 +306,67 @@ function applyMemoModeFromSelect() {
   memoTextInput.style.height = memoTextInput.scrollHeight + "px";
 }
 
+function attachMemoModeWithHistory() {
+  if (!memoModeSelect || !memoTextInput) return;
+
+  memoModeSelect.addEventListener("focus", function () {
+    memoModeSelect._historyPrevMode = memoModeSelect.value;
+  });
+
+  memoModeSelect.addEventListener("change", function () {
+    if (isApplyingHistory) return;
+
+    const prevMode = memoModeSelect._historyPrevMode || memoModeSelect.value;
+    const prevText = memoTextInput.value;
+
+    const nextMode = memoModeSelect.value;
+
+    // Apply visual/UI changes for the memo mode, including delay controls
+    // and the memo text value.
+    applyMemoModeFromSelect();
+    const nextText = memoTextInput.value;
+
+    const changes = [];
+
+    const modeChange = makeFieldChange(
+      "memo",
+      "memo-mode",
+      null,
+      prevMode,
+      nextMode
+    );
+    if (modeChange) changes.push(modeChange);
+
+    const textChange = makeFieldChange(
+      "memo",
+      "memo-text",
+      null,
+      prevText,
+      nextText
+    );
+    if (textChange) changes.push(textChange);
+
+    if (changes.length) {
+      pushHistoryEntry({
+        timestamp: Date.now(),
+        changes: changes,
+      });
+    }
+
+    // Update stored previous state for subsequent memo mode changes.
+    memoModeSelect._historyPrevMode = nextMode;
+  });
+}
+
+
+
 function initMemoControls() {
   if (!memoModeSelect || !memoTextInput) return;
 
-  memoModeSelect.addEventListener("change", applyMemoModeFromSelect);
+  // Initialize memo UI based on current mode, then attach history-aware
+  // handlers that treat mode+text as a single action.
   applyMemoModeFromSelect();
+  attachMemoModeWithHistory();
 
   if (typeof setupAutoResize === "function") {
     setupAutoResize(memoTextInput);
@@ -306,6 +378,7 @@ function initMemoControls() {
     });
   }
 }
+
 
 function applySummaryModeFromSelect(modeSelect, textInput) {
   if (!modeSelect || !textInput) return;
@@ -329,28 +402,86 @@ function applySummaryModeFromSelect(modeSelect, textInput) {
   textInput.style.height = textInput.scrollHeight + "px";
 }
 
+function attachSummaryModeWithHistory(modeSelect, textInput, baseFieldId) {
+  if (!modeSelect || !textInput) return;
+
+  modeSelect.addEventListener("focus", function () {
+    modeSelect._historyPrevMode = modeSelect.value;
+  });
+
+  modeSelect.addEventListener("change", function () {
+    if (isApplyingHistory) return;
+
+    const prevMode = modeSelect._historyPrevMode || modeSelect.value;
+    const prevText = textInput.value;
+
+    const nextMode = modeSelect.value;
+
+    // Apply the visual mode change first so the text reflects the
+    // mode-specific default (e.g. TBC).
+    applySummaryModeFromSelect(modeSelect, textInput);
+    const nextText = textInput.value;
+
+    const changes = [];
+
+    const modeChange = makeFieldChange(
+      "summary",
+      baseFieldId + "-mode",
+      null,
+      prevMode,
+      nextMode
+    );
+    if (modeChange) changes.push(modeChange);
+
+    const textChange = makeFieldChange(
+      "summary",
+      baseFieldId,
+      null,
+      prevText,
+      nextText
+    );
+    if (textChange) changes.push(textChange);
+
+    if (changes.length) {
+      pushHistoryEntry({
+        timestamp: Date.now(),
+        changes: changes,
+      });
+    }
+
+    // After recording this change, update the stored previous state so
+    // subsequent mode changes use the correct "from" values.
+    modeSelect._historyPrevMode = nextMode;
+  });
+}
+
+
+
 function initSummaryModeControls() {
   if (findingModeSelect && findingInput) {
-    findingModeSelect.addEventListener("change", function () {
-      applySummaryModeFromSelect(findingModeSelect, findingInput);
-    });
     applySummaryModeFromSelect(findingModeSelect, findingInput);
+    attachSummaryModeWithHistory(findingModeSelect, findingInput, "finding");
   }
 
   if (rootCauseModeSelect && rootCauseInput) {
-    rootCauseModeSelect.addEventListener("change", function () {
-      applySummaryModeFromSelect(rootCauseModeSelect, rootCauseInput);
-    });
     applySummaryModeFromSelect(rootCauseModeSelect, rootCauseInput);
+    attachSummaryModeWithHistory(
+      rootCauseModeSelect,
+      rootCauseInput,
+      "root-cause"
+    );
   }
 
   if (actionTakenModeSelect && actionTakenInput) {
-    actionTakenModeSelect.addEventListener("change", function () {
-      applySummaryModeFromSelect(actionTakenModeSelect, actionTakenInput);
-    });
     applySummaryModeFromSelect(actionTakenModeSelect, actionTakenInput);
+    attachSummaryModeWithHistory(
+      actionTakenModeSelect,
+      actionTakenInput,
+      "action-taken"
+    );
   }
 }
+
 
 function getMemoExportText() {
   if (!memoModeSelect || !memoTextInput) return "";
@@ -494,7 +625,37 @@ function hideAllRowActionPopups(except) {
   });
 }
 
+function scrollRowToViewportTop(rowEl) {
+  if (!rowEl) return;
+
+  const rect = rowEl.getBoundingClientRect();
+
+  // Account for fixed header and page title bar heights
+  const headerEl = document.querySelector(".app-header");
+  const titleBarEl = document.getElementById("page-title-bar");
+
+  const headerHeight =
+    (headerEl ? headerEl.offsetHeight : 0) +
+    (titleBarEl ? titleBarEl.offsetHeight : 0);
+
+  // Extra spacing between row and header/title bar
+  const extraOffset = 8;
+
+  const targetTopInDocument = rect.top + window.scrollY;
+  let targetScrollY = targetTopInDocument - headerHeight - extraOffset;
+
+  if (targetScrollY < 0) {
+    targetScrollY = 0;
+  }
+
+  window.scrollTo({
+    top: targetScrollY,
+    behavior: "smooth",
+  });
+}
+
 function attachRowEvents(rowEl) {
+
   const timeInput = rowEl.querySelector(".time-input");
   const popup = rowEl.querySelector(".time-popup");
   const hourInput = rowEl.querySelector(".hour-input");
@@ -516,6 +677,12 @@ function attachRowEvents(rowEl) {
   const actionCopyBtn = rowEl.querySelector(".row-action-copy");
 
   const radioName = "time-format-" + rowEl.dataset.rowId;
+
+  // Attach history tracking for row description field
+  if (descInput) {
+    attachTrackedField("row", "desc", descInput, rowEl.dataset.rowId);
+  }
+
 
   function showError(msg) {
     errorBox.textContent = msg;
@@ -618,30 +785,47 @@ function attachRowEvents(rowEl) {
 
   wireHourAutoAdvance();
 
-  okBtn.addEventListener("click", function (e) {
+    okBtn.addEventListener("click", function (e) {
     e.stopPropagation();
     const totalMinutes = readTimeFromPopup();
     if (totalMinutes === null) {
       return;
     }
-    timeInput.value = formatTime(totalMinutes);
+
+    const prev = timeInput.value;
+    const next = formatTime(totalMinutes);
+    timeInput.value = next;
     hidePopup();
     validateTimeOrder();
+
+    const change = makeFieldChange("row", "time", rowEl.dataset.rowId, prev, next);
+    if (change) {
+      pushHistoryEntry({
+        timestamp: Date.now(),
+        changes: [change],
+      });
+    }
   });
+
 
   cancelBtn.addEventListener("click", function (e) {
     e.stopPropagation();
     hidePopup();
   });
 
-  if (moveRowBtn) {
+    if (moveRowBtn) {
     moveRowBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       if (!actionsPopup) return;
       hideAllRowActionPopups(actionsPopup);
       actionsPopup.classList.toggle("hidden");
+
+      // When the settings (move-row) button is clicked, scroll this row so its
+      // top aligns just under the fixed header and page title bar.
+      scrollRowToViewportTop(rowEl);
     });
   }
+
 
   if (actionUpBtn) {
     actionUpBtn.addEventListener("click", function (e) {
@@ -813,6 +997,85 @@ function createRow() {
   updateExportButtonState();
 }
 
+// Used by Smartfill apply mode to append a new event row at the bottom
+// with the given description text.
+function addSequenceRowFromSmartfill(text) {
+  const desc = (text || "").trim();
+  if (!desc) return;
+
+  rowIdCounter += 1;
+  const fragment = rowTemplate.content.cloneNode(true);
+  const rowEl = fragment.querySelector(".note-row");
+  const rowId = String(rowIdCounter);
+  rowEl.dataset.rowId = rowId;
+
+  const descInput = rowEl.querySelector(".desc-input");
+  if (descInput) {
+    descInput.value = desc;
+    if (typeof setupAutoResize === "function") {
+      setupAutoResize(descInput);
+    }
+    descInput.style.height = "auto";
+    descInput.style.height = descInput.scrollHeight + "px";
+  }
+
+  rowsContainer.appendChild(fragment);
+  attachRowEvents(rowEl);
+  validateTimeOrder();
+  updateExportButtonState();
+
+  const index = Array.from(rowsContainer.querySelectorAll(".note-row")).indexOf(rowEl);
+  const change = {
+    type: "addRow",
+    rowId: rowId,
+    index: index,
+    content: {
+      time: "",
+      desc: desc,
+    },
+  };
+  pushHistoryEntry({
+    timestamp: Date.now(),
+    changes: [change],
+  });
+}
+
+
+function replaceSequenceRowsFromSmartfill(descriptions) {
+  if (!rowsContainer || !rowTemplate) return;
+
+  rowsContainer.innerHTML = "";
+  rowIdCounter = 0;
+
+  (descriptions || []).forEach(function (description) {
+    rowIdCounter += 1;
+    const fragment = rowTemplate.content.cloneNode(true);
+    const rowEl = fragment.querySelector(".note-row");
+    rowEl.dataset.rowId = String(rowIdCounter);
+
+    const descInput = rowEl.querySelector(".desc-input");
+    if (descInput) {
+      descInput.value = description || "";
+    }
+
+    rowsContainer.appendChild(fragment);
+    attachRowEvents(rowEl);
+
+  });
+
+  requestAnimationFrame(function () {
+    const descriptionInputs = rowsContainer.querySelectorAll(".desc-input");
+    descriptionInputs.forEach(function (descriptionInput) {
+      descriptionInput.style.height = "auto";
+      descriptionInput.style.height = descriptionInput.scrollHeight + "px";
+    });
+  });
+
+  validateTimeOrder();
+  updateExportButtonState();
+}
+
+
 function serializeState() {
   const rows = Array.from(rowsContainer.querySelectorAll(".note-row")).map(
     function (row) {
@@ -957,19 +1220,116 @@ function loadStateFromStorage() {
   }
 }
 
+// === History (Undo/Redo) persistence ===
+function saveHistoryToStorage() {
+  try {
+    const payload = {
+      undoStack: undoStack,
+      redoStack: redoStack,
+    };
+    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(payload));
+  } catch (e) {
+    // ignore
+  }
+}
+
+function loadHistoryFromStorage() {
+  try {
+    const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (raw) {
+      const payload = JSON.parse(raw);
+      if (payload && Array.isArray(payload.undoStack) && Array.isArray(payload.redoStack)) {
+        undoStack = payload.undoStack;
+        redoStack = payload.redoStack;
+      }
+    } else {
+      // no history stored yet; keep stacks empty
+      undoStack = [];
+      redoStack = [];
+    }
+  } catch (e) {
+    // ignore; fall back to empty stacks
+    undoStack = [];
+    redoStack = [];
+  }
+  updateUndoRedoButtonState();
+}
+
+
+
+function attachResumeTimeModeWithHistory() {
+  if (!resumeTimeModeSelect || !resumeTimeInput) return;
+
+  resumeTimeModeSelect.addEventListener("focus", function () {
+    resumeTimeModeSelect._historyPrevMode = resumeTimeModeSelect.value;
+  });
+
+  resumeTimeModeSelect.addEventListener("change", function () {
+    if (isApplyingHistory) return;
+
+    const prevMode =
+      resumeTimeModeSelect._historyPrevMode || resumeTimeModeSelect.value;
+    const prevText = resumeTimeInput.value;
+
+    const nextMode = resumeTimeModeSelect.value;
+
+    applyResumeTimeModeFromSelect();
+    const nextText = resumeTimeInput.value;
+
+    const changes = [];
+
+    const modeChange = makeFieldChange(
+      "summary",
+      "resume-time-mode",
+      null,
+      prevMode,
+      nextMode
+    );
+    if (modeChange) changes.push(modeChange);
+
+    const textChange = makeFieldChange(
+      "summary",
+      "resume-time",
+      null,
+      prevText,
+      nextText
+    );
+    if (textChange) changes.push(textChange);
+
+    if (changes.length) {
+      pushHistoryEntry({
+        timestamp: Date.now(),
+        changes: changes,
+      });
+    }
+
+    // Update stored previous state so subsequent mode changes have an
+    // accurate starting point.
+    resumeTimeModeSelect._historyPrevMode = nextMode;
+  });
+}
+
+
+
 function initResumeTimeControls() {
   if (!resumeTimeModeSelect || !resumeTimeInput) return;
 
-  resumeTimeModeSelect.addEventListener("change", applyResumeTimeModeFromSelect);
   applyResumeTimeModeFromSelect();
+  attachResumeTimeModeWithHistory();
 }
+
 
 function resetToDefaultState() {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch (e) {}
 
+  if (typeof clearHistoryStacks === "function") {
+    clearHistoryStacks();
+  }
+
   if (faultDescriptionInput) faultDescriptionInput.value = "";
+
   if (findingInput) findingInput.value = "";
   if (rootCauseInput) rootCauseInput.value = "";
   if (actionTakenInput) actionTakenInput.value = "";
@@ -1116,11 +1476,18 @@ if (exportBtn) {
   });
 }
 
-// Expose for translator_script.js
+// Expose for translator_script.js and smartfill_script.js
 window.buildExportClipboardContent =
   window.buildExportClipboardContent || buildExportClipboardContent;
+window.pushHistoryEntry = window.pushHistoryEntry || pushHistoryEntry;
+window.makeFieldChange = window.makeFieldChange || makeFieldChange;
+window.recordSmartfillFieldChange =
+  window.recordSmartfillFieldChange || recordSmartfillFieldChange;
+window.clearHistoryStacks = window.clearHistoryStacks || clearHistoryStacks;
+
 
 function sendContentToWhatsapp(content) {
+
   const trimmed = (content || "").trim();
   if (!trimmed) {
     window.alert("目前沒有可匯出的內容。");
@@ -1218,7 +1585,27 @@ function buildSummaryWhatsappContent() {
   return sections.join("\n\n");
 }
 
+function updateUndoRedoButtonState() {
+  if (undoBtn) {
+    undoBtn.disabled = undoStack.length === 0;
+  }
+  if (redoBtn) {
+    redoBtn.disabled = redoStack.length === 0;
+  }
+}
+
+function clearHistoryStacks() {
+  undoStack = [];
+  redoStack = [];
+  updateUndoRedoButtonState();
+  try {
+    window.localStorage.removeItem(HISTORY_STORAGE_KEY);
+  } catch (e) {}
+}
+
 function buildSequenceTextForExcel() {
+
+
   const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
   const lines = [];
 
@@ -1397,6 +1784,349 @@ if (resetBtn) {
   });
 }
 
+// === History (Undo/Redo) core ===
+
+function getHistoryTargetForFieldElement(el) {
+  if (!el) return null;
+
+  const id = el.id || "";
+  const isBottom = el.classList.contains("bottom-textarea");
+  const isRowDesc = el.classList.contains("desc-input");
+
+  if (id === "fault-description") {
+    return { scope: "top", fieldId: "fault-description", rowId: null };
+  }
+
+  if (id === "start-date-year") {
+    return { scope: "startDate", fieldId: "start-date-year", rowId: null };
+  }
+  if (id === "start-date-month") {
+    return { scope: "startDate", fieldId: "start-date-month", rowId: null };
+  }
+  if (id === "start-date-day") {
+    return { scope: "startDate", fieldId: "start-date-day", rowId: null };
+  }
+
+  if (id === "memo-text") {
+    return { scope: "memo", fieldId: "memo-text", rowId: null };
+  }
+
+  if (isBottom) {
+    if (id === "finding") {
+      return { scope: "summary", fieldId: "finding", rowId: null };
+    }
+    if (id === "root-cause") {
+      return { scope: "summary", fieldId: "root-cause", rowId: null };
+    }
+    if (id === "action-taken") {
+      return { scope: "summary", fieldId: "action-taken", rowId: null };
+    }
+    if (id === "resume-time") {
+      return { scope: "summary", fieldId: "resume-time", rowId: null };
+    }
+  }
+
+  if (isRowDesc) {
+    const rowEl = el.closest(".note-row");
+    if (rowEl && rowEl.dataset && rowEl.dataset.rowId) {
+      return {
+        scope: "row",
+        fieldId: "desc",
+        rowId: rowEl.dataset.rowId,
+      };
+    }
+  }
+
+  return null;
+}
+
+function recordSmartfillFieldChange(fieldEl, oldValue, newValue) {
+  if (!fieldEl) return;
+  const target = getHistoryTargetForFieldElement(fieldEl);
+  if (!target) return;
+
+  const change = makeFieldChange(
+    target.scope,
+    target.fieldId,
+    target.rowId,
+    oldValue || "",
+    newValue || ""
+  );
+  if (!change) return;
+
+  pushHistoryEntry({
+    timestamp: Date.now(),
+    changes: [change],
+  });
+}
+
+function applyHistoryChange(change, direction) {
+  // direction: "undo" or "redo"
+  if (!change || !change.type) return;
+
+  if (change.type === "field") {
+
+    const targetValue = direction === "undo" ? change.prev : change.next;
+    const scope = change.target && change.target.scope;
+    const fieldId = change.target && change.target.fieldId;
+    const rowId = change.target && change.target.rowId;
+    let el = null;
+
+    if (scope === "top") {
+      if (fieldId === "fault-description") {
+        el = faultDescriptionInput;
+      }
+    } else if (scope === "startDate") {
+      if (fieldId === "start-date-year") {
+        el = startDateYearSelect;
+      } else if (fieldId === "start-date-month") {
+        el = startDateMonthSelect;
+      } else if (fieldId === "start-date-day") {
+        el = startDateDaySelect;
+      }
+    } else if (scope === "memo") {
+      if (fieldId === "memo-mode") {
+        el = memoModeSelect;
+      } else if (fieldId === "memo-text") {
+        el = memoTextInput;
+      } else if (fieldId === "memo-delay-mins") {
+        el = memoDelayMinsInput;
+      }
+    } else if (scope === "summary") {
+      if (fieldId === "finding-mode") {
+        el = findingModeSelect;
+      } else if (fieldId === "finding") {
+        el = findingInput;
+      } else if (fieldId === "root-cause-mode") {
+        el = rootCauseModeSelect;
+      } else if (fieldId === "root-cause") {
+        el = rootCauseInput;
+      } else if (fieldId === "action-taken-mode") {
+        el = actionTakenModeSelect;
+      } else if (fieldId === "action-taken") {
+        el = actionTakenInput;
+      } else if (fieldId === "resume-time-mode") {
+        el = resumeTimeModeSelect;
+      } else if (fieldId === "resume-time") {
+        el = resumeTimeInput;
+      }
+    } else if (scope === "row" && rowId) {
+      const rowEl = rowsContainer.querySelector(
+        '.note-row[data-row-id="' + rowId + '"]'
+      );
+      if (rowEl) {
+        if (fieldId === "time") {
+          el = rowEl.querySelector(".time-input");
+        } else if (fieldId === "desc") {
+          el = rowEl.querySelector(".desc-input");
+        }
+      }
+    }
+
+    if (!el) return;
+
+        // Avoid re-recording this as a new history entry
+    isApplyingHistory = true;
+    el.value = targetValue || "";
+
+    if (typeof resizeToContent === "function" && el.tagName === "TEXTAREA") {
+      resizeToContent(el);
+    }
+
+    if (el === startDateYearSelect || el === startDateMonthSelect || el === startDateDaySelect) {
+      validateStartDate();
+    }
+
+    if (el === resumeTimeModeSelect) {
+      applyResumeTimeModeFromSelect();
+    }
+
+    if (el === findingModeSelect && findingInput) {
+      applySummaryModeFromSelect(findingModeSelect, findingInput);
+    }
+    if (el === rootCauseModeSelect && rootCauseInput) {
+      applySummaryModeFromSelect(rootCauseModeSelect, rootCauseInput);
+    }
+        if (el === actionTakenModeSelect && actionTakenInput) {
+      applySummaryModeFromSelect(actionTakenModeSelect, actionTakenInput);
+    }
+
+    if (el === memoModeSelect) {
+      // Restoring memo mode should re-apply memo UI (including delay controls
+      // and memo text value).
+      applyMemoModeFromSelect();
+    }
+
+    if (el === memoDelayMinsInput && memoModeSelect && memoModeSelect.value === "DELAY") {
+      // When restoring the Train delay minutes value, keep the memo text in
+      // sync so Undo/Redo behaves intuitively.
+      const raw = memoDelayMinsInput.value.replace(/[^0-9]/g, "");
+      const mins = raw || "";
+      if (memoTextInput) {
+        memoTextInput.value = mins
+          ? "Train delay " + mins + " mins"
+          : "Train delay  mins";
+
+        if (typeof resizeToContent === "function" && memoTextInput.tagName === "TEXTAREA") {
+          resizeToContent(memoTextInput);
+        } else {
+          memoTextInput.style.height = "auto";
+          memoTextInput.style.height = memoTextInput.scrollHeight + "px";
+        }
+      }
+    }
+
+    isApplyingHistory = false;
+    validateTimeOrder();
+    updateExportButtonState();
+
+  } else if (change.type === "addRow") {
+    const idx = change.index;
+    if (direction === "undo") {
+      const rows = Array.from(rowsContainer.querySelectorAll(".note-row"));
+      const rowEl = rows[idx];
+      if (rowEl && rowEl.dataset.rowId === change.rowId) {
+        rowEl.remove();
+        validateTimeOrder();
+        updateExportButtonState();
+      }
+    } else {
+      const fragment = rowTemplate.content.cloneNode(true);
+      const rowEl = fragment.querySelector(".note-row");
+      rowEl.dataset.rowId = change.rowId;
+      const timeInput = rowEl.querySelector(".time-input");
+      const descInput = rowEl.querySelector(".desc-input");
+      if (timeInput) timeInput.value = change.content.time || "";
+      if (descInput) {
+        descInput.value = change.content.desc || "";
+        if (typeof setupAutoResize === "function") {
+          setupAutoResize(descInput);
+        }
+        descInput.style.height = "auto";
+        descInput.style.height = descInput.scrollHeight + "px";
+      }
+
+      const rows = rowsContainer.querySelectorAll(".note-row");
+      const beforeNode = rows[idx] || null;
+      if (beforeNode) {
+        rowsContainer.insertBefore(fragment, beforeNode);
+      } else {
+        rowsContainer.appendChild(fragment);
+      }
+      attachRowEvents(rowEl);
+      validateTimeOrder();
+      updateExportButtonState();
+    }
+  } else if (change.type === "replaceRows") {
+    const rowsData = direction === "undo" ? change.prevRows : change.nextRows;
+    rowsContainer.innerHTML = "";
+
+    (rowsData || []).forEach(function (rowData) {
+      const fragment = rowTemplate.content.cloneNode(true);
+      const rowEl = fragment.querySelector(".note-row");
+      rowEl.dataset.rowId = rowData.rowId || String(++rowIdCounter);
+      const timeInput = rowEl.querySelector(".time-input");
+      const descInput = rowEl.querySelector(".desc-input");
+      if (timeInput) timeInput.value = rowData.time || "";
+      if (descInput) {
+        descInput.value = rowData.desc || "";
+        if (typeof setupAutoResize === "function") {
+          setupAutoResize(descInput);
+        }
+        descInput.style.height = "auto";
+        descInput.style.height = descInput.scrollHeight + "px";
+      }
+      rowsContainer.appendChild(fragment);
+      const newlyAddedRow =
+        rowsContainer.querySelector(".note-row:last-child") || rowEl;
+      attachRowEvents(newlyAddedRow);
+    });
+
+    validateTimeOrder();
+    updateExportButtonState();
+  }
+}
+
+
+function applyHistoryEntry(entry, direction) {
+  if (!entry || !Array.isArray(entry.changes)) return;
+  const changes = direction === "undo" ? entry.changes.slice().reverse() : entry.changes;
+  changes.forEach(function (change) {
+    applyHistoryChange(change, direction);
+  });
+}
+
+function pushHistoryEntry(entry) {
+  if (!entry || !Array.isArray(entry.changes) || !entry.changes.length) {
+    return;
+  }
+  undoStack.push(entry);
+  // New timeline: clear redo stack
+  redoStack = [];
+  updateUndoRedoButtonState();
+  saveHistoryToStorage();
+}
+
+function makeFieldChange(scope, fieldId, rowId, prevValue, nextValue) {
+  if (prevValue === nextValue) return null;
+  return {
+    type: "field",
+    target: {
+      scope: scope,
+      fieldId: fieldId,
+      rowId: rowId || null,
+    },
+    prev: prevValue,
+    next: nextValue,
+  };
+}
+
+function attachTrackedField(scope, fieldId, element, rowId) {
+  if (!element) return;
+
+  element.addEventListener("focus", function () {
+    element.dataset.historyPrevValue = element.value;
+  });
+
+  element.addEventListener("change", function () {
+    if (isApplyingHistory) return;
+    const prev = element.dataset.historyPrevValue;
+    const next = element.value;
+    const change = makeFieldChange(scope, fieldId, rowId, prev, next);
+    if (!change) return;
+    pushHistoryEntry({
+      timestamp: Date.now(),
+      changes: [change],
+    });
+  });
+}
+
+function handleUndoClick() {
+  if (!undoStack.length) return;
+  const entry = undoStack.pop();
+  redoStack.push(entry);
+  applyHistoryEntry(entry, "undo");
+  updateUndoRedoButtonState();
+  saveHistoryToStorage();
+}
+
+function handleRedoClick() {
+  if (!redoStack.length) return;
+  const entry = redoStack.pop();
+  undoStack.push(entry);
+  applyHistoryEntry(entry, "redo");
+  updateUndoRedoButtonState();
+  saveHistoryToStorage();
+}
+
+if (undoBtn) {
+  undoBtn.addEventListener("click", handleUndoClick);
+}
+if (redoBtn) {
+  redoBtn.addEventListener("click", handleRedoClick);
+}
+
+
 document.addEventListener("click", function (e) {
   const target = e.target;
 
@@ -1415,9 +2145,15 @@ createRow();
 createRow();
 createRow();
 
+// Track top-level fault description field
+if (faultDescriptionInput) {
+  attachTrackedField("top", "fault-description", faultDescriptionInput, null);
+}
+
 if (faultDescriptionInput && typeof setupAutoResize === "function") {
   setupAutoResize(faultDescriptionInput);
 }
+
 if (findingInput && typeof setupAutoResize === "function") {
   setupAutoResize(findingInput);
 }
@@ -1436,6 +2172,38 @@ initMemoControls();
 initResumeTimeControls();
 initSummaryModeControls();
 
+// Attach history tracking to non-row fields
+if (startDateYearSelect) {
+  attachTrackedField("startDate", "start-date-year", startDateYearSelect, null);
+}
+if (startDateMonthSelect) {
+  attachTrackedField("startDate", "start-date-month", startDateMonthSelect, null);
+}
+if (startDateDaySelect) {
+  attachTrackedField("startDate", "start-date-day", startDateDaySelect, null);
+}
+
+if (memoTextInput) {
+  attachTrackedField("memo", "memo-text", memoTextInput, null);
+}
+if (memoDelayMinsInput) {
+  attachTrackedField("memo", "memo-delay-mins", memoDelayMinsInput, null);
+}
+
+if (findingInput) {
+  attachTrackedField("summary", "finding", findingInput, null);
+}
+if (rootCauseInput) {
+  attachTrackedField("summary", "root-cause", rootCauseInput, null);
+}
+if (actionTakenInput) {
+  attachTrackedField("summary", "action-taken", actionTakenInput, null);
+}
+if (resumeTimeInput) {
+  attachTrackedField("summary", "resume-time", resumeTimeInput, null);
+}
+
+
 const restoredState = loadStateFromStorage();
 if (restoredState) {
   applyState(restoredState);
@@ -1443,5 +2211,12 @@ if (restoredState) {
   updateExportButtonState();
 }
 
+// Load history stacks (if any) and update toolbar state
+loadHistoryFromStorage();
+
 // Autosave every 5 seconds
-setInterval(saveStateToStorage, 5000);
+setInterval(function () {
+  saveStateToStorage();
+  saveHistoryToStorage();
+}, 5000);
+

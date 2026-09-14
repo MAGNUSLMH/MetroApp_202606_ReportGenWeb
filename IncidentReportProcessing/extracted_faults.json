@@ -1,0 +1,737 @@
+[
+  {
+    "Fault description": "False fire alarm in SST cable tunnel",
+    "Sequency of event": {
+      "row_1": "MCS prompted a fire alarm of detector L03 D42 in SST which located in SST cable tunnel. Duty SC summoned FMD and contractor Linkfoong immediately",
+      "row_2": "CoC informed SC that fire engine was dispatched. CSM/Lo KH, CSO/Chang ST and FMD proceeded to SST for investigation.",
+      "row_3": "FSD with 2 Fire Engines (F2352,F255) and ambulance A433 arrived at SST.",
+      "row_4": "Contractor Linkfoong arrived at SST.",
+      "row_5": "CSM/Lo KH, CSO/Chang ST , FMD arrived at SST and conducted joint investigation with FSD.",
+      "row_6": "It was confirmed that no smoke and fire in SST.",
+      "row_7": "FSD and ambulance crew left SST",
+      "row_8": "Detector L03D42 was replaced by Contractor Linkfoong. Condition of SST was normal",
+      "row_9": "Station Staff, FMD and Contractor Linkfoong left SST"
+    },
+    "Finding": "MCS prompted a fire alarm of detector L03 D42 in SST",
+    "Root cause": "Smoke Detector L03D42 false alarm",
+    "Action Taken": "Contractor LinkFoong replaced smoke detector L03D42",
+    "Resume time": "17:30"
+  },
+  {
+    "Fault description": "TUC PSD 226-LHS failed to close",
+    "Sequency of event": {
+      "row_1": "TUC SC report PSD 226 LHS failed to close",
+      "row_2": "Station staff isolated PSD and Train departed",
+      "row_3": "Informed Contractor FFE",
+      "row_4": "Contractor FFE arrived",
+      "row_5": "Contractor FFE replaced LHS Leaf Lock Switch (LLS). After that, TUC PSD 226 resume service"
+    },
+    "Finding": "TUC PSD 226-LHS failed to close",
+    "Root cause": "LHS LLS malfunction",
+    "Action Taken": "FFE replaced LHS LLS",
+    "Resume time": "10:00"
+  },
+  {
+    "Fault description": "AWE ESC E1 EM59: Incident / accident investigation",
+    "Sequency of event": {
+      "row_1": "AWE Escalator E1 stopping alarm was activated in MCS.",
+      "row_2": "AIR SC informed FMD and contractor Wemaintain AWE escalator E1 tripped. Two passengers fall backward in AWE Escalator E1 due to carry bulky luggages .",
+      "row_3": "FMD inform MET L&E.",
+      "row_4": "Contractor Wemaintain and FMD arrived. Wemaintain checked escalator E1.",
+      "row_5": "FMD and contractor WeMaintain cross checked the escalator E1.",
+      "row_6": "AWE E1 resumed."
+    },
+    "Finding": "Two passengers fall backward in AWE Escalator E1 due to carry bulky luggages .",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor WM check AWE E1 all safety switch normal then running test AWE E1",
+    "Resume time": "AWE Escalator E1 as resumed normal at 15:50 on 14/06/2026"
+  },
+  {
+    "Fault description": "TUC ESC E4 EM59: Incident / accident investigation at 11:58 on 21/05/2026",
+    "Sequency of event": {
+      "row_1": "TUC MCS received TUC E4 Emergency stop alarm,",
+      "row_2": "E4 Escalator stopped by TUC S/C.",
+      "row_3": "SC Inform FMD & Contractor WeMaintain. SC discovered an injured 60-year-old Female lost her balance and fell at the lower landing via CCTV. SC deployed concourse staff to investigate. Ambulance service was summoned via TC. The injured Female was found reddish on her head.",
+      "row_4": "Ambulance A224 arrived.",
+      "row_5": "Female injured passenger sent to North Lantau hospital.",
+      "row_6": "informed MET L&E.",
+      "row_7": "FMD arrived.",
+      "row_8": "Contractor WeMaintain arrived checked E4.",
+      "row_9": "E4 Escalator resumed"
+    },
+    "Finding": "TUC E4 SC discovered an injured 60-year-old Female at the lower landing via CCTV.",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor WM check TUC E4 all safety switch normal then running test TUC E4",
+    "Resume time": "TUC Escalator E4 as resumed normal at 13:45 on 21/05/2026"
+  },
+  {
+    "Fault description": "TUC PSD 226-LHS failed to close",
+    "Sequency of event": {
+      "row_1": "TUC SC report PSD 226 LHS failed to close",
+      "row_2": "Station staff isolated PSD and Train departed",
+      "row_3": "Informed Contractor FFE",
+      "row_4": "Contractor FFE arrived",
+      "row_5": "Contractor FFE replaced LHS Leaf Lock Switch (LLS). After that, TUC PSD 226 resume service"
+    },
+    "Finding": "TUC PSD 226-LHS failed to close",
+    "Root cause": "LHS LLS malfunction",
+    "Action Taken": "FFE replaced LHS LLS",
+    "Resume time": "10:00"
+  },
+  {
+    "Fault description": "TUC PSD - 238 LHS failed to close",
+    "Sequency of event": {
+      "row_1": "TUC SC reported PSD - 238 LHS failed to close. Station staff manual Close PSD - 238 LHS Door",
+      "row_2": "FMD Informed FFE",
+      "row_3": "FFE arrived TUC",
+      "row_4": "Contractor FFE lubricate LHS PSD Door and adjust alignment, function test normal Leaf Lock Switch (LLS). After that, TUC PSD - 238 resume service"
+    },
+    "Finding": "TUC PSD 238-LHS failed to close",
+    "Root cause": "LHS LLS malfunction",
+    "Action Taken": "FFE lubricate LHS PSD Door and adjust alignment",
+    "Resume time": "TUC PSD 238 resume service at 19:45"
+  },
+  {
+    "Fault description": "AWE ESC E2 EM59: Incident / accident investigation at 20:05on 23/08/2025",
+    "Sequency of event": {
+      "row_1": "AIR SC report AWE ESC E2 escalator lower landing accident. A F/M passenger lost balance and left ankle painful.",
+      "row_2": "AIR SC inform Contractor We maintain and FMD",
+      "row_3": "SC Called ambulance.",
+      "row_4": "FMD arrived AWE",
+      "row_5": "Contractor We maintain arrived AWE",
+      "row_6": "inform MET",
+      "row_7": "A165 ambulance arrived.",
+      "row_8": "The injury conveyed to North Lantau Hospital for medical treatment.",
+      "row_9": "Contractor We maintain check and function test normal. E2 resumed"
+    },
+    "Finding": "AWE ESC E2 20:05 escalator accident",
+    "Root cause": "Passenger low landing lost balance",
+    "Action Taken": "Contractor We maintain check and function test normal",
+    "Resume time": "AWE Escalator E2 was resumed normal operation at 22:05"
+  },
+  {
+    "Fault description": "AIR PED 5 Failed to close",
+    "Sequency of event": {
+      "row_1": "AIR SC report Dn BHA bay 5 of PED 5 RHS close to failed.",
+      "row_2": "Train departed after manpower push the door to close.",
+      "row_3": "Informed Contractor FFE",
+      "row_4": "PED 5 keep isolated.",
+      "row_5": "Contractor arrived Sc report had 3 min train delay. FFE lubricate PED5 RHS bearing loading bar, test few trains, resumed normal at 14:45"
+    },
+    "Finding": "AIR PED 5 RHS Failed to close",
+    "Root cause": "External factor",
+    "Action Taken": "FFE lubricate PED5 RHS bearing loading bar",
+    "Resume time": "23/08/25 14:45"
+  },
+  {
+    "Fault description": "TUC ESC E4 EM59: Incident / accident investigation at 13:52 on 02/07/2025",
+    "Sequency of event": {},
+    "Finding": "TUC E4 E-stop was activated",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor Wemaintain functional test of brake stopping distance and made running test.",
+    "Resume time": "TUC Escalator E4 as resumed normal at 2025/7/02 15 :42"
+  },
+  {
+    "Fault description": "TUC ESC E1 EM59 - Incident / accident investigation",
+    "Sequency of event": {
+      "row_1": "TUC SC reported Esclator E1 Injured passenger A (59 years old), Ms. Yau, passenger right ankle sustained sprain at escalator E1 L/L. After investigation, Ms. Yau lost balance when walking at escalator E1 lower curve at 0638 hrs. She was conveyed to North Lantau Hospotal.",
+      "row_2": "inform OTIS and FMD",
+      "row_3": "Contractor OTIS and FMD arrived for investigation.",
+      "row_4": "Contractor OTIS Check normal ,E1 resumed."
+    },
+    "Finding": "External factor Injured passenger",
+    "Root cause": "Passenger lost balance",
+    "Action Taken": "Contractor OTIS Check normal ,E1 resumed",
+    "Resume time": "Resume 08:10"
+  },
+  {
+    "Fault description": "AIR PSD 112 fail to open",
+    "Sequency of event": {
+      "row_1": "AIR SC inform FMD that MCS show PSD alarm at AIR platform 1.",
+      "row_2": "FMD rush to PSD 112 and found PSD 112 no close signal while the PSD is closed. (train 18209)",
+      "row_3": "Since second EMU (train 18210) arrived and found LHS door is freeze, we have pulled the LHS door manual release handle and slide for two times. After that, PSD112 can operate normally.",
+      "row_4": "FMD informed FFE.",
+      "row_5": "After monitor PSD 112 normal operate for few trains. FMD review PSD event log found that PSD 112 manual release is triggered at 06:58.",
+      "row_6": "FFE arrived for PSD 112 checking, they will arrange deep check at 15^16NTH. Now, PSD 112 is kept in manual, not in use."
+    },
+    "Finding": "AIR PSD 112 fail to open",
+    "Root cause": "Manual release is triggered",
+    "Action Taken": "TBC",
+    "Resume time": "TBC"
+  },
+  {
+    "Fault description": "AIR-PSD-PSD-213 RHS failed to close hit by an unknown pax",
+    "Sequency of event": {
+      "row_1": "AIR SC report that AIR-PSD-PSD-213 MCS shown DCU fault",
+      "row_2": "Inform FFE & FMD",
+      "row_3": "FMD arrived LHS cannot open ,monitor PSD 213",
+      "row_4": "PSD 213 Cannot close , push close PSD 213, train depart",
+      "row_5": "Isolated PSD 213",
+      "row_6": "FFE arrived for investigation PSD 213 DCU fault and failed to open and closed At 19:10 FFE replaced LHS DCU , function test normal resume auto",
+      "row_7": "FFE monitor PSD 213 two train open & close normal inform SC resumed no train delay"
+    },
+    "Finding": ".",
+    "Root cause": "LHS DCU fault",
+    "Action Taken": "FFE replaced PSD 213 LHS DCU",
+    "Resume time": "19:30"
+  },
+  {
+    "Fault description": "TUC PSD PSD233 LHS siding door fail to operate on. 01-122024 08:52",
+    "Sequency of event": {
+      "row_1": "08:52 TUC SC informed FMD and FFE , TUC PSD PSD233 LHS siding door fail to operate . 09:10 FMD arrived and inspect PSD233 PSD 233 sometime LHS siding door fail to operate. 09:47:53 FFE arrived inspect PSD 233 10:37 FFE adjust PSD 233 L.C.S. alignment resume PSD 233 FFE monitor 3 train normal and left Remark: no train delay"
+    },
+    "Finding": "TUC PSD PSD233 LHS siding door fail to operate on. 01-122024 08:5",
+    "Root cause": "PSD 233 sometime LHS siding door fail to operate.",
+    "Action Taken": "adjust PSD 233 L.C.S. alignment",
+    "Resume time": "10:37"
+  },
+  {
+    "Fault description": "AIR PSD 211 Failed to close",
+    "Sequency of event": {
+      "row_1": "X052 reported that a PSD was failed to close and requested station staff assistance. X052 was informed to try to re-open and re-close PSD.",
+      "row_2": "Station staff arrived at scene and reported that a gap of 30mm remained at PSD 211. Although the PSD could be closed by force, the DOI remained lit. PSDI failed to obtain.",
+      "row_3": "Staff was informed to isolate the faulty PSD for train departure. X052 departed from AIR P2 after confirmed with AIR staff that PSD was fully closed and kept close in manual mode.",
+      "row_4": "Contractor adjusted LHS door alignment and function test resumed normal."
+    },
+    "Finding": "AIR PSD 211 Failed to close",
+    "Root cause": "LHS door misalignment",
+    "Action Taken": "Adjusted PSD 211 LHS door alignment",
+    "Resume time": "AIR PSD 211 resumed normal at 17:30"
+  },
+  {
+    "Fault description": "SST fire alarm on 17/1/2026 21:40",
+    "Sequency of event": {
+      "row_1": "Time: 21:40",
+      "row_2": "MCS prompted a fire alarm N01L03 in SST which is in SST cable tunnel detector N01L03D23 and Fire engine was dispatched. Station staff & FMD proceeded to the scene. SC call Link Foong follow.",
+      "row_3": "Fire Engines F2321 and F2706 arrived at SST.",
+      "row_4": "FMD arrived at SST.",
+      "row_5": "FMD and FSD found that fire alarm was triggered by detector N01L03D23. Finally, it was confirmed as a false alarm after joint investigation with FSD. Detector N01L03D23 was isolated by FMD and pending for Contractor Link Foong to replace.",
+      "row_6": "Link Foong arrived",
+      "row_7": "system resumed after detector N01L03D23 was replaced by contractor Link Foong."
+    },
+    "Finding": "N01SST L03D23 fire alarm on",
+    "Root cause": "N01L03 detector false alarm",
+    "Action Taken": "Detector N01L03D23 was replaced by contractor Link Foong.",
+    "Resume time": "N/A"
+  },
+  {
+    "Fault description": "TUC ESC E4 EM59: Incident / accident investigation at 22:30 on 04/04/2026",
+    "Sequency of event": {
+      "row_1": "A Chinese boy age 8, Escalator E4 lost balance and Child hurt his knee with collision to the step by himself. E4 lower landing curve.",
+      "row_2": "CUC IWS staff reported a young boy was crying near E4 upper landing area, concourse staff approached to investigate,",
+      "row_3": "E4 Escalator stopped by station staff.",
+      "row_4": "SC Inform FMD & Contractor WeMaintain.",
+      "row_5": "sent injury to North Lantau Hospital for further checkup.",
+      "row_6": "FMD and Contractor WeMaintain arrived checked E4.",
+      "row_7": "Informed MET L&E",
+      "row_8": "E4 Escalator resumed"
+    },
+    "Finding": "TUC E4 Child hurt his knee with collision to the step by himself",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor WM check TUC E4 all safety switch normal then running test TUC E4",
+    "Resume time": "TUC Escalator E4 as resumed normal at 00:10 on 05/04/2026"
+  },
+  {
+    "Fault description": "TUC Escalator AE02  EM01 - Unresettable escalator tripped",
+    "Sequency of event": {
+      "row_1": "TUC AE02 tripped",
+      "row_2": "TUC SC informed FMD & OTIS TUC AE02 tripped , no passenger injured.",
+      "row_3": "FMD arrived TUC",
+      "row_4": "OTIS arrived TUC",
+      "row_5": "OTIS start investigation AE02",
+      "row_6": "OTIS check SUUR safety device was function normal. , running test normal inform SC ,resume 14:34.",
+      "row_7": "FMD informed MET L&E TUC AE02 trip"
+    },
+    "Finding": "TUC AE02 SUUR Safety tripped",
+    "Root cause": "External factor",
+    "Action Taken": "OTIS Check SUUR safety device was function normal.",
+    "Resume time": "14:34"
+  },
+  {
+    "Fault description": "TUC Lift PL02 -OOS",
+    "Sequency of event": {
+      "row_1": "10:25 (first )TUC S/C report PL02 OOS 10:55 FMD & Kone arrive for investigation. Found that PL02 show alarm fault code 4110 in PL02 control panel. FMD send unpark command to PL02 , but still not clear fault code 4110, Kone disconnected cable 31 & removed parking relay then reset control panel of PL02, the fault can clear & fault code also cleared. 12:50 Kone connected cable 31 & installed parking relay, checked that PL02 no fault alarm appear in control panel. And then PL02 resumed to passenger use. 13:11 (second) TUC S/C report PL02 OOS again. Kone & FMD arrive, first time disconnected cable 31 & removed parking relay for PL02 to passenger use."
+    },
+    "Finding": "Fault code 4110 can not clear.",
+    "Root cause": "N/A",
+    "Action Taken": "Disconnected cable 31 & parking relay, Kone request join test with Hitachi",
+    "Resume time": "Temporary resumed at 14:00"
+  },
+  {
+    "Fault description": "TUC ESC AE1 Incident at 15:43 on 01/12/2023",
+    "Sequency of event": {
+      "row_1": "Alarm was received from MCS that Escalator AE1 was stopped. SC urged Conc and SA to investigate. A 76 y.o. C/M was found sitting on the escalator stair and bleeding on his right forehead. SC summoned ambulance immediately.",
+      "row_2": "Fault reported to FMD & OTIS to check TUC ESC AE1.",
+      "row_3": "Ambulance A400 arrived TUC Exit A, and conveyed the injury to North Lantau Hospital at 16:19.",
+      "row_4": "OTIS & FMD arrived and cross check AE1.",
+      "row_5": "FMD informed L&E and FMEC.",
+      "row_6": "AE1 resumed."
+    },
+    "Finding": "He carried total 3 bags on both hands, around 3kg. He did not hold the handrail. He lost balance and fell forward and caused his right forehead was bleeding.",
+    "Root cause": "External factor",
+    "Action Taken": "OTIS checked no abnormal was found.",
+    "Resume time": "16:46 TUC ESC AE1 resumed operation"
+  },
+  {
+    "Fault description": "TUC ESC AE1 Passenger Incident at 11:21 on 10/01/2024",
+    "Sequency of event": {
+      "row_1": "MCS Show AE1 emergency stop alarm was activated. SC deployed staff to investigate. At site found a lady fell on AE1 lowing curve area. Both palms & left side of head found reddish.",
+      "row_2": "SC fault reported to FMD & contractor OTIS to follow.",
+      "row_3": "Ambulance A453 arrived.",
+      "row_4": "FMD and OTIS arrived and conduct functional checking at AE1",
+      "row_5": "Ambulance A453 departed at 11:50hrs. The injury was send to North Lantau Hospital for further treatment.",
+      "row_6": "AE1 resumed at 12:40",
+      "row_7": "FMD update information to MET L&E"
+    },
+    "Finding": "AE1 lowing curve area emergency stop was activated.",
+    "Root cause": "Passenger did not hold the handrail loss balance",
+    "Action Taken": "Safety checked by OTIS",
+    "Resume time": "TUC Escalator AE1 was resumed normal at 10/01/2024 12:40"
+  },
+  {
+    "Fault description": "TUC ESC AE2 auto tripped at 14:37 on 13/02/2024",
+    "Sequency of event": {
+      "row_1": "TUC ESC AE2 auto tripped.",
+      "row_2": "Fault reported to FMD & OTIS to check.",
+      "row_3": "FMD & OTIS arrived",
+      "row_4": "OTIS start checking ESC AE2, found CDC switch(扶手鏈制) was triggered",
+      "row_5": "FMD Inform MET L&E",
+      "row_6": "OTIS adjusted CDC (扶手鏈) tension and make running test",
+      "row_7": "After cross checked by OTIS and FMD, ESC AE2 resume service."
+    },
+    "Finding": "CDC switch(扶手鏈制) was triggered",
+    "Root cause": "CDC (扶手鏈) tension loosen",
+    "Action Taken": "OTIS adjusted扶手鏈 tension",
+    "Resume time": "ESC AE2 resumed on 17:00"
+  },
+  {
+    "Fault description": "TUC ESC AE2 auto tripped at 15:50 on 18/06/2023",
+    "Sequency of event": {
+      "row_1": "MCS displayed AE2 E stop activated. SC deployed staff to investigate. At site, no passenger injured or call for assist. Fault reported to FMD & OTIS to check.",
+      "row_2": "OTIS & FMD arrived and cross check AE2.",
+      "row_3": "An female passenger Miss Wong approached CuC at 1630hrs and stated her right hand wrist felt painful because AE2 suddenly stop. However, Miss Wong reject any treatment or go to hospital. She stated she will claim her injured with her insurance company.",
+      "row_4": "FMD informed L&E and FMEC.",
+      "row_5": "Contractor OTIS found SUUR was activated which cause AE2 tripped.",
+      "row_6": "AE2 resumed at 19:15 after OTIS checked and reset the SUUR."
+    },
+    "Finding": "SUUR was activated",
+    "Root cause": "External factor",
+    "Action Taken": "OTIS checked clearance on SUUR",
+    "Resume time": "19:15"
+  },
+  {
+    "Fault description": "TUC ESC E1 Auto Trip at 06:57 on 23/03/2023",
+    "Sequency of event": {
+      "row_1": "TUC SC received ESC E1 alarm on MCS.",
+      "row_2": "TUC SC informed OTIS and FMD.",
+      "row_3": "OTIS and FMD arrived for investigation and found code S17 was activated and found one comb seven teeth broken",
+      "row_4": "FMD informed L&E team",
+      "row_5": "The escalator was resumed operation after OTIS replaced the comb and detail checking."
+    },
+    "Finding": "E1 was tripped caused by Fault code: S17",
+    "Root cause": "Unknown factor",
+    "Action Taken": "Cross checked by OTIS & FMD",
+    "Resume time": "TUC Escalator E1 was resumed normal at 08:20"
+  },
+  {
+    "Fault description": "TUC Escalator E1 EM56 - Other faults causing tripping",
+    "Sequency of event": {
+      "row_1": "TUC E1 stop",
+      "row_2": "TUC SC informed FMD TUC E1 upper landing E-stop is activated by passenger , no passenger injured.",
+      "row_3": "FMD informed MET L&E TUC E1 trip",
+      "row_4": "FMD & OTIS arrived TUC",
+      "row_5": "OTIS start investigation E1",
+      "row_6": "OTIS dismantle E1 HSL sensor for replacement (requested by MET L&E).",
+      "row_7": "MET L&E arrived then investigation with Otis. Checked the HSL sensor was normal function and handrail tenson was acceptable. on the moment, unsure root cause and suspect handrail of aged ,so Otis will replace Ecs. E1 of LHS handrail on NTH NTH OTIS replaced ESC E1 LHS new handrail and handrail tenson normal, 03:30 start running test, waiting instruction resume service time. And Inform SC"
+    },
+    "Finding": "TUC E1 S26 upper landing E-stop button activated",
+    "Root cause": "External factor",
+    "Action Taken": "NTH OTIS replaced ESC E1 LHS new handrail and handrail tenson normal, 03:30 start running test, waiting instruction resume service time . And inform SC",
+    "Resume time": "At 1545 resumed to operation."
+  },
+  {
+    "Fault description": "TUC Escalator E1 EM56 - Other faults causing tripping",
+    "Sequency of event": {
+      "row_1": "TUC S/C report TUC ESC E1 Auto trip",
+      "row_2": "FMD arrived & OTIS arrived",
+      "row_3": "FMD Informed MET L&E and FMEC",
+      "row_4": "OTIS investigation TUC E1, found handrail slip left is out of rate (HSL) safety switch is activated.",
+      "row_5": "OTIS detail Check HSL sensor, confirm sensor function normal. detail Check E1 Left handrail inside and white guide reel normal, OTIS adjusted Left handrail tension, running test normal inform SC 01:00 resumed."
+    },
+    "Finding": "TUC E1 Auto Trip",
+    "Root cause": "HSL safety switch activated",
+    "Action Taken": "OTIS detail Check HSL sensor, confirm sensor function normal. detail Check E1 Left handrail inside and white guide reel normal, OTIS adjusted Left handrail tension, running test normal inform SC 01:00 resumed",
+    "Resume time": "01:00"
+  },
+  {
+    "Fault description": "TUC ESC E1 Lower Landing comb damaged on 22/04/2023 13:50",
+    "Sequency of event": {
+      "row_1": "TUC SC report that ESC.E1 was tripped and called OTIS & FMD",
+      "row_2": "FMD arrived",
+      "row_3": "FMD informed L&E Team",
+      "row_4": "OTIS arrived for investigation E1 found fault code S16 was triggered and L/L one comb broken (2nd on RHS)",
+      "row_5": "OTIS replaced one comb at L/L, Detail checking ESC E1 and running test",
+      "row_6": "The ESC E1 resumed normal."
+    },
+    "Finding": "S16 was triggered and L/L one comb broken (2nd on RHS)",
+    "Root cause": "S16 was triggered and L/L one comb broken (2nd on RHS)",
+    "Action Taken": "OTIS replace one comb at L/L, Measure comb clearance",
+    "Resume time": "TUC Escalator E1 was resumed normal at 15:30"
+  },
+  {
+    "Fault description": "TUC ESC E1 OOS at 12:40 on 29/12/2023",
+    "Sequency of event": {
+      "row_1": "TUC ESC E1 OOS",
+      "row_2": "Fault reported to FMD & OTIS",
+      "row_3": "FMD informed L&E Duty Team",
+      "row_4": "FMD & OTIS arrived",
+      "row_5": "OTIS site investigation ESC E1 but can’t found the root cause. OTIS trouble shooting ESC E1 in progress",
+      "row_6": "OTIS replaced faulty MESB and resumed service."
+    },
+    "Finding": "MESB fault",
+    "Root cause": "MESB fault",
+    "Action Taken": "Replaced MESB and running test",
+    "Resume time": "16:35"
+  },
+  {
+    "Fault description": "TUC ESC E1 Passenger incident at 07:47 on 18/01/2023",
+    "Sequency of event": {
+      "row_1": "TUC SC received ESC E1 alarm on MCS. Staff rushed to the scene and found that a C/M passenger lost balance & fallen on E1 lower landing. He got up by himself & rushed on Train at Platform 2.",
+      "row_2": "TUC SC informed OTIS.",
+      "row_3": "a C/F passenger reported to CuC that she was injured during the sudden stop of E1. Her right elbow was reddish & the heel of her shoe was broken. Staff provided first-aid treatment to passenger. She declined ambulance assistance but made a complaint & then left at 0815 hrs.",
+      "row_4": "OTIS arrived for investigation and found code K42 was activated.",
+      "row_5": "TUC SC informed FMD.",
+      "row_6": "FMD arrived and informed FMEC and L&E.",
+      "row_7": "The escalator was resumed operation after FMD and OTIS detail checking."
+    },
+    "Finding": "E1 was tripped caused by Fault code: K42",
+    "Root cause": "The injured stated that they lost balance",
+    "Action Taken": "Cross checked by OTIS & FMD",
+    "Resume time": "TUC Escalator E1 was resumed normal at 11:30"
+  },
+  {
+    "Fault description": "TUC ESC E1 Passenger incident at 08:11 on 27/03/2023",
+    "Sequency of event": {
+      "row_1": "TUC SC received ESC E1 alarm on MCS. Station Staff go to the scene and found that a C/M passenger Melody lost balance & fallen on E1 lower landing. Her right foot ankle seems reddish. She is accompanied with station staff to take a rest a platform seat with first aid treatment. TUC SC called OTIS & FMD.",
+      "row_2": "C/F passenger Melody feel OK. She declined ambulance service and take L433 left platform 1",
+      "row_3": "OTIS and FMD arrived for investigation and found code OS was activated.",
+      "row_4": "The escalator was resumed operation after FMD and OTIS detail checking and measured speed 0.75 m/s by OTIS.",
+      "row_5": "Informed L&E team for investigation."
+    },
+    "Finding": "E1 was tripped caused by Fault code: OS",
+    "Root cause": "The injured stated that they lost balance; OS overspeed fault; they suspend some passenger running down from escalator E1 from concourse to platform & activate the safety device",
+    "Action Taken": "Cross checked by OTIS & FMD",
+    "Resume time": "TUC Escalator E1 was resumed normal at 11:00"
+  },
+  {
+    "Fault description": "TUC Escalator E4 EM59 - Incident / accident investigation",
+    "Sequency of event": {
+      "row_1": "Tuc SC reported Esclator E4 stop alarm received. A 60 yrs passenger forehead was reddished and swelling of forehead. He was conveyed to North Lantau Hospotal.",
+      "row_2": "Contractor OTIS and FMD arrived for investigation."
+    },
+    "Finding": "TBC",
+    "Root cause": "Passenger lost balance",
+    "Action Taken": "TBC",
+    "Resume time": "TBC"
+  },
+  {
+    "Fault description": "TUC Escalator E4 EM59 - Incident / accident investigation",
+    "Sequency of event": {
+      "row_1": "Tuc SC reported Esclator E4 stop alarm received. A 60 yrs passenger forehead was reddished and swelling of forehead. He was conveyed to North Lantau Hospotal.",
+      "row_2": "Contractor OTIS and FMD arrived for investigation.",
+      "row_3": "Contractor OTIS Check normal ,E4 resumed."
+    },
+    "Finding": "Found LL E stop was push",
+    "Root cause": "Passenger lost balance",
+    "Action Taken": "Contractor OTIS Check normal ,E4 resumed",
+    "Resume time": "Resume 14:58"
+  },
+  {
+    "Fault description": "TUC ESC AE2 EM01 - Unresettable escalator tripped at 18:39 on 15/06/2025",
+    "Sequency of event": {
+      "row_1": "TUC SC report that TUC ESC AE2 was tripped and informed Wemaintain and FMD.",
+      "row_2": "FMD informed FMEC and MET L&E.",
+      "row_3": "FMD arrived.",
+      "row_4": "Wemaintain arrived, and found safety device(SUUR) was activated which cause AE2 to trip.",
+      "row_5": "Contractor Wemaintain detail checked and made running test.",
+      "row_6": "Escalator AE2 resumed after Wemaintain checking."
+    },
+    "Finding": "A child crossed the upper platform on a scooter, triggering the safety device (SUUR).",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor Wemaintain detail checked and made running test.",
+    "Resume time": "TUC Escalator AE2 as resumed normal at 2025/6/15 20 :00"
+  },
+  {
+    "Fault description": "TUC ESC AE02 EM56 - Other faults causing tripping at 09:47 on 31/05/2025",
+    "Sequency of event": {
+      "row_1": "TUC SC informed FMD that TUC AE2 Other faults causing tripping.",
+      "row_2": "TUC SC informed contractor WM",
+      "row_3": "FMD Arrived",
+      "row_4": "WM arrived TUC",
+      "row_5": "WM Found SUUR Switch activated and reset it",
+      "row_6": "TUC AE2 resumed normal and test normal"
+    },
+    "Finding": "SUUR Switch activated",
+    "Root cause": "A passenger used a trolley in the elevator, causing SUUR Switch to be triggered",
+    "Action Taken": "Reset SUUR Switch",
+    "Resume time": "12:00"
+  },
+  {
+    "Fault description": "TUC ESC E7 EM59: Incident / accident investigation at 18:58 on 27/10/2025",
+    "Sequency of event": {
+      "row_1": "SC Informed Wemaintain follow.",
+      "row_2": "Tuc Sc Informed FMD Esc E5passengers injury.",
+      "row_3": "FMD Chased Wemaintain follow & Informed MET",
+      "row_4": "SC Tripped the ESC - E5 (U/L)",
+      "row_5": "FMD arrived TUC",
+      "row_6": "Age 83 female left TUC injured and conveyed to Northern Lantau Hospital",
+      "row_7": "Wemaintain arrived From review cctv,the female injured walk alone and she lean on ESC - E5 panel cause loss balance.she is hold one handrail and the other hand is holding her luggage car"
+    },
+    "Finding": "Passenger loss balance. E stop activated by S/C",
+    "Root cause": "External factor",
+    "Action Taken": "Checked the handrail belt for synchronization and tension. After testing, it operated normally",
+    "Resume time": "TUC Escalator E5 was resumed normal operation at 20:23"
+  },
+  {
+    "Fault description": "AWE ESC-E02 EM01: Unresettable escalator tripped on 10/01/2026",
+    "Sequency of event": {
+      "row_1": "AIR SC report FMD and Contractor Wemaintain, that AWE ESC E2 auto trip.",
+      "row_2": "FMD arrived AWE.",
+      "row_3": "Contractor Wemaintain arrived AWE They reset Esc E2 , reseted NRV and OSD ,running test for a while but still auto trip again, they waiting the diagnostic tool arrive to check the cause of the fault and continue follow. Pls chase.",
+      "row_4": "diagnostic tool arrived AWE",
+      "row_5": "diagnostic tool check fault code M62 (CPLL) activated.",
+      "row_6": "check comb plate under low jam one screw, remove screw and running test normal.",
+      "row_7": "resumed normal"
+    },
+    "Finding": "E02 EM01: Unresettable escalator tripped",
+    "Root cause": "M62 (CPLL) activated",
+    "Action Taken": "check comb plate under low jam one screw, remove screw and running test normal.",
+    "Resume time": "02:00"
+  },
+  {
+    "Fault description": "AWE Escalator E3 EM56: Other faults causing tripping",
+    "Sequency of event": {
+      "row_1": "1.Breakdown time : 18：07 2. ⁠FMD arrival time : 18：20 3. ⁠Call Wemaintain (WM) time : 18：07 MET time : 19：30 4. ⁠WM arrival time : 18:47 5. ⁠Review CCTV footage : yes 6. ⁠Root cause: TBC 7. ⁠What safety device activated : Break 感應器 activated 8. ⁠ WM follow-up action : TBC 9. ⁠What time resume : TBC WM adjusted AWE E3 break sensor,keep running test. Waiting基哥黎檢查完先開 10 : 23:30 WM check MB Contactor abnormal output 11: 00:30 WM replaced new MB Contactor and PLC output unit, 12: 00:30 E3 running test, 13: 05:30 E3 resumed normal"
+    },
+    "Finding": "AWE E3 Break 感應器 activated (fault 39)",
+    "Root cause": "MB Contactor abnormal output",
+    "Action Taken": "WM replaced new MB Contactor and PLC output unit",
+    "Resume time": "05:30"
+  },
+  {
+    "Fault description": "AWE Escalator E1 EM00: Unresettable power surge/fault",
+    "Sequency of event": {
+      "row_1": "05:15 AWE E1 fuse brunt after WM reset PLC power supply. 06:05 L&E Team arrived. 06:35 WM still trouble shooting and root cause to be confirmed. 11:00 WM replaced faulty OCR, reloaded PLC programme and resumed normal with no status to MCS"
+    },
+    "Finding": "Control fuse brunt",
+    "Root cause": "PLC defect",
+    "Action Taken": "Reloaded PLC programme",
+    "Resume time": "13/09/2025 11:00"
+  },
+  {
+    "Fault description": "TUC ESC E5 EM59 - Incident / accident investigation at 11:40 on 12/06/2025",
+    "Sequency of event": {
+      "row_1": "CuC staff reported someone get hurt near E5 area. RS & conc staff approached to site and found a elder stated he lost balance at E5 lower landing curve area. His head felt painful. Staff provided first aid to him and found reddish at his back head. SC summon ambulance service via TC. A369 arrived TUC at 11:50 and send the injured to North Lantau hospital for further treatment. 2025/6/12 11:35:00 At 1135hrs, CuC staff reported someone get hurt near E5 area. RS & conc staff approached to site and found a elder stated he lost balance at E5 lower landing curve area. His head felt painful. 2025/6/12 11:40:00 Staff provided first aid to him and found reddish at his back head. SC summon ambulance service via TC. Staff stop E5 escalator for further check up. 2025/6/12 11:50:00 A369 arrived TUC at 11:50, 2025/6/12 12:00:00 Ambulance departed at 12:00; and send the injured to North Lantau hospital for further treatment. Contractor WeMaintain arrived TUC and cross checked E5 with FMD. 2025/6/12 13:10:00 E5 function normal and resumed to service after confirmed by contractor."
+    },
+    "Finding": "TUC E5 lower landing E-stop was activated",
+    "Root cause": "External factor",
+    "Action Taken": "FMD and contractor WeMaintain cross checked E5 escalator and found no fault",
+    "Resume time": "TUC Escalator E5 as resumed normal at 2025/6/12 13:10:00"
+  },
+  {
+    "Fault description": "TUC ESC E5 EM56 - Other faults causing tripping at 19:23 on 01/04/2025",
+    "Sequency of event": {
+      "row_1": "TUC SC informed TUC E5 auto tripped no passenger injury.",
+      "row_2": "FMD inform contractor Wemaintain and MET L&E.",
+      "row_3": "FMD and inform contractor Wemaintain arrived TUC, found NRD safety switch activated.",
+      "row_4": "After cleaning up and checking NRD safety switch, TUC E5 resumed operate."
+    },
+    "Finding": "TUC E5 tripped",
+    "Root cause": "TUC E5 NRD safety switch activated.",
+    "Action Taken": "contractor Wemaintain cleaning up and checking NRD safety switch",
+    "Resume time": "TUC Escalator E5 as resumed normal at 22:30 on 01/04/2025"
+  },
+  {
+    "Fault description": "TUC ESC E4 EM59: Incident / accident investigation at 13:52 on 02/07/2025",
+    "Sequency of event": {},
+    "Finding": "TUC E4 E-stop was activated",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor Wemaintain functional test of brake stopping distance and made running test.",
+    "Resume time": "TUC Escalator E4 as resumed normal at 2025/7/02 15 :42"
+  },
+  {
+    "Fault description": "TUC ESC E3 EM00: Unresettable power surge/fault at 09:40 on 22/09/2025",
+    "Sequency of event": {
+      "row_1": "TUC SC report ESC E3 incident.",
+      "row_2": "TUC SC inform Contractor We maintain and FMD",
+      "row_3": "FMD informed L&E and FMEC",
+      "row_4": "FMD arrived TUC (0616 incident for the first time, no passengers were injured, SC resume E3, but hearing E3 There is a strange noise, Call WE On site inspection. WE There was no elevator inspection, only going down to the machine room to check the reason. After running the test for a period of time, a second emergency stop occurred at 0732, WE After inspection, one of the sensors may have abnormalities. Run the test again for a period of time and then restore. 0940E3 Emergency stop again, no passengers were injured, WE need to get the parts.)",
+      "row_5": "Contractor We maintain go back and found the FVV拍 problem.",
+      "row_6": "Contractor We maintain replaced the FVV拍and running test",
+      "row_7": "TUC E3 resumed."
+    },
+    "Finding": "ESC E3 incident",
+    "Root cause": "FVV拍shot bad",
+    "Action Taken": "replaced the FVV拍",
+    "Resume time": "TUC Escalator E3 was resumed normal operation at 13:30"
+  },
+  {
+    "Fault description": "TUC Escalator E2 EM01 - Unresettable escalator tripped",
+    "Sequency of event": {
+      "row_1": "TUC SC informed that TUC E2 Auto trip. No passenger injured. OTIS informed by TUC SC.",
+      "row_2": "FMD informed MET L&E",
+      "row_3": "FMD arrived TUC.",
+      "row_4": "OTIS Arrived TUC",
+      "row_5": "OTIS start investigation E2",
+      "row_6": "OTIS Check normal ,E2 Resumed Normal"
+    },
+    "Finding": "S9 safety switch triggered",
+    "Root cause": "The S9 is triggered by the customer's trolley",
+    "Action Taken": "Contractor OTIS Check normal, E2 resumed normal",
+    "Resume time": "23:45"
+  },
+  {
+    "Fault description": "TUC Escalator E1 EM59 - Incident / accident investigation",
+    "Sequency of event": {
+      "row_1": "SC informed FMD that a female passenger lost balance and fell at escalator E1. E-stop activated by station staff. Passenger claimed her right elbow felt painful and requested ambulance service. Ambulance was summoned via TC. Ambulance A473 arrived at 08:01 and left at 0813. The injured was conveyed to NLTH.",
+      "row_2": "OTIS arrived TUC. OTIS checking that there is no abnormality on E1 and function test normal, resumed service at 09:10."
+    },
+    "Finding": "E-stop activated by station staff",
+    "Root cause": "External factor",
+    "Action Taken": "OTIS checking E1 function test normal, resumed service at 09:10.",
+    "Resume time": "Resume 09:10"
+  },
+  {
+    "Fault description": "TUC ESC E1 EM56: Other faults causing tripping",
+    "Sequency of event": {
+      "row_1": "TUC SC reported that TUC E1 tripped, & fault code show ( Electromagnetic brake error or over temp )",
+      "row_2": "Informed Otis",
+      "row_3": "Otis arrived for investigation, he said that CPLL activated ( see CCTV ). Due to unknown passenger of trolley trigger the CPLL at Lower landing. Then adjusted & function checked",
+      "row_4": "resumed to operation.",
+      "row_5": "SC report Esc. E1 tripped again.",
+      "row_6": "Informed Otis & LE-MET Otis arrived for investigation, he suspected the E brake sensor had problem,",
+      "row_7": "OTIS informed FMD E1 resumed normal",
+      "row_8": "FMD arrive with OTIS confirm all normal",
+      "row_9": "service for passenger"
+    },
+    "Finding": "Esc. E1 auto tripped.",
+    "Root cause": "Otis found E brake sensor problem.",
+    "Action Taken": "OTIS adjust E brake sensor position",
+    "Resume time": "15:45"
+  },
+  {
+    "Fault description": "TUC ESC E01 MCS show tripping at 06:10 on 06/06/2025",
+    "Sequency of event": {
+      "row_1": "TUC SC informed FMD that TUC ESC E01 MCS show tripping",
+      "row_2": "TUC SC informed contractor OTIS",
+      "row_3": "FMD Arrived",
+      "row_4": "FMD Found the L/L middle comb plate broken",
+      "row_5": "OTIS arrived OTIS found S14, S15 safety switch (Broken Step Chain Left & Right) activated.",
+      "row_6": "OTIS start investigates TUC E1.",
+      "row_7": "inform MET",
+      "row_8": "After OTIS replaced the L/L middle 24T comb plate. OTIS make running test and check TUC E1 no abnormal found, TUC E1 resumed"
+    },
+    "Finding": "TUC ESC E06 L/L middle comb plate broken",
+    "Root cause": "S14, S15 safety switch (Broken Step Chain Left & Right) activated",
+    "Action Taken": "OTIS replaced TUC E1 L/L middle 24T comb plate and running test",
+    "Resume time": "TUC E1 resumed service at 08:20"
+  },
+  {
+    "Fault description": "TUC ESC AE2 EM29 - Unresettable safety switch activation",
+    "Sequency of event": {
+      "row_1": "TUC SC informed that TUC AE2 Auto trip. No passenger injured.",
+      "row_2": "FMD arrived TUC.",
+      "row_3": "A Wemaintance contractor arrived TUC book On,",
+      "row_4": "still no action to check the ESC-AE2. he said waiting another colleagues for inspection.",
+      "row_5": "WeMaintance informed S/C , the AE2 check normal and resumed to operation."
+    },
+    "Finding": "RHSSU activate",
+    "Root cause": "External factor",
+    "Action Taken": "WeMaintance Checked normal",
+    "Resume time": "22:18"
+  },
+  {
+    "Fault description": "TUC ESC 01 EM56: Other faults causing tripping at 07:50 on 09/09/2025",
+    "Sequency of event": {
+      "row_1": "TUC SC report ESC E01 MCS show trip",
+      "row_2": "TUC SC inform Contractor OTIS and FMD",
+      "row_3": "OTIS arrived TUC",
+      "row_4": "inform MET",
+      "row_5": "FMD arrived TUC",
+      "row_6": "Contractor OTIS replaced 犘打測速Sensor",
+      "row_7": "TUC E1 resumed."
+    },
+    "Finding": "ESC E01 trip alarm",
+    "Root cause": "Escalator auto tripped due to bad contact of Escalator Speed Monitor Sensor",
+    "Action Taken": "Replaced 犘打測速Sensor",
+    "Resume time": "TUC Escalator E1 was resumed normal operation at 11:40"
+  },
+  {
+    "Fault description": "A SD L02D75 faulty",
+    "Sequency of event": {
+      "row_1": "SC reported TUC fire alarm of SD L02D75 (kiosk TUC-15) activated.",
+      "row_2": "Station staff arrived on scene.",
+      "row_3": "FSD (F327 and F2713) arrived TUC and confirmed scene no smoke and fire then isolated..",
+      "row_4": "SC informed FMD and Link Foong.",
+      "row_5": "FSD left.",
+      "row_6": "FMD arrived TUC.",
+      "row_7": "Link Foong arrived TUC.",
+      "row_8": "Link Foong replaced faulty SD and resumed normal."
+    },
+    "Finding": "A smoke detector L02D75 was activated.",
+    "Root cause": "Found a SD was faulty",
+    "Action Taken": "The faulty SD was replaced by Contractor LinkFoong and checked normal.",
+    "Resume time": "At 20:40 resumed."
+  },
+  {
+    "Fault description": "TUT smoke Detector L01D27 faulty",
+    "Sequency of event": {
+      "row_1": "Citylink received fireman called that TUT had a fire bell sound. FSD Ng CK /SSO F6051 F2321 arrived.",
+      "row_2": "SC call FMD to scene",
+      "row_3": "FMD inform contractor Link Foong",
+      "row_4": "SC arrived",
+      "row_5": "FMD arrived",
+      "row_6": "FMD, SC, Fireman located that fire detector L01D27 was activated but no fire nor smoke at site",
+      "row_7": "FMD isolated SD L01D27",
+      "row_8": "FSD left TUT",
+      "row_9": "After Link Foong replaced the faulty smoke detector and reset TUT fire panel, L01D27 resumed."
+    },
+    "Finding": "L01D27 false alarm",
+    "Root cause": "L01D27 false alarm",
+    "Action Taken": "Link Foong replaced the faulty smoke detector L01D27 & resumed at 21:48",
+    "Resume time": "N/A"
+  },
+  {
+    "Fault description": "SST fire alarm on 13/12/2025 01:13",
+    "Sequency of event": {
+      "row_1": "AIR SC informed MCS received SST fire alarm.",
+      "row_2": "FMD arrived SCR MCS show SST fire alarm , FMD & station staff go to SST",
+      "row_3": "inform Link Foong SST fire alarm pls go to SST",
+      "row_4": "FMD& station Staff arrives SST and joint investigation with FSD",
+      "row_5": "FMD investigation fire panel show L01D18 fire alarm",
+      "row_6": "confirmed that no smoke and fire at SST",
+      "row_7": "FSD left SST",
+      "row_8": "link foong arrived",
+      "row_9": "link foong check and isolated Detector L01D18",
+      "row_10": "station staff ,FMD and link foong left SST",
+      "row_11": "Lingk foong Arrived SST to renews L01D18 Detector",
+      "row_12": "resumed normal"
+    },
+    "Finding": "SST L01D18 fire alarm on",
+    "Root cause": "N01L01D18 detector false alarm",
+    "Action Taken": "Link Foong renews L01D18 detector",
+    "Resume time": "N/A"
+  },
+  {
+    "Fault description": "TUC Lift FL01 OOS on 23/02/2026",
+    "Sequency of event": {
+      "row_1": "TUC S/C report FL01 OOS.",
+      "row_2": "Contractor WM arrived for investigation. Found that jammed objects at door guard rail.",
+      "row_3": "FL01 Resumed to operation after removed the objects & function checked."
+    },
+    "Finding": "Jammed objects",
+    "Root cause": "External factor",
+    "Action Taken": "Contractor WM removed the objects",
+    "Resume time": "TUC Lift FL01 resumed normal at 23/02 04:00"
+  }
+]

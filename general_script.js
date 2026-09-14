@@ -8,12 +8,15 @@ let currentTranslateTargetLabel = "";
 // Top-level DOM elements for cross-tab navigation and header/footer.
 const reportMain = document.getElementById("report-main");
 const translateMain = document.getElementById("translate-main");
-const feedbackMain = document.getElementById("feedback-main");
-const feedbackNotesInput = document.getElementById("feedback-notes");
+const smartfillMain = document.getElementById("smartfill-main");
+const smartfillNotesInput = document.getElementById("smartfill-notes");
 const footerTabs = document.querySelectorAll(".footer-tab");
 const pageTitleTextEl = document.getElementById("page-title-text");
 const appFooter = document.querySelector(".app-footer");
 const hktClockEl = document.getElementById("hkt-clock");
+const historyToolbar = document.querySelector(".history-toolbar");
+
+
 
 // Shared auto-resize helper used by multiple pages.
 // resizeToContent can be called whenever code updates a textarea's value
@@ -33,8 +36,35 @@ function setupAutoResize(textarea) {
   resize();
 }
 
+function scrollFieldIntoViewWithHeaderOffset(el) {
+  if (!el) return;
+
+  const rect = el.getBoundingClientRect();
+  const headerEl = document.querySelector(".app-header");
+  const titleBarEl = document.getElementById("page-title-bar");
+
+  const headerHeight =
+    (headerEl ? headerEl.offsetHeight : 0) +
+    (titleBarEl ? titleBarEl.offsetHeight : 0);
+
+  const extraOffset = 8;
+
+  const targetTopInDocument = rect.top + window.scrollY;
+  let targetScrollY = targetTopInDocument - headerHeight - extraOffset;
+
+  if (targetScrollY < 0) {
+    targetScrollY = 0;
+  }
+
+  window.scrollTo({
+    top: targetScrollY,
+    behavior: "smooth",
+  });
+}
+
 // HKT clock in the header.
 function startHktClock() {
+
   if (!hktClockEl) return;
   function update() {
     const now = new Date();
@@ -87,21 +117,22 @@ function updatePageTitle(name) {
     pageTitleTextEl.textContent = "事件報表";
   } else if (name === "translate") {
     pageTitleTextEl.textContent = "英語翻譯";
-  } else if (name === "feedback") {
-    pageTitleTextEl.textContent = "提供翻譯反饋";
+  } else if (name === "smartfill") {
+    pageTitleTextEl.textContent = "快速輸入";
   }
 }
 
 function showTab(name) {
-  if (!reportMain || !translateMain || !feedbackMain) {
+  if (!reportMain || !translateMain || !smartfillMain) {
     return;
   }
 
   const map = {
     report: reportMain,
     translate: translateMain,
-    feedback: feedbackMain,
+    smartfill: smartfillMain,
   };
+
 
   // remember which tab was active before change
   const previousActiveTab = Array.from(footerTabs || []).find(function (tab) {
@@ -118,7 +149,7 @@ function showTab(name) {
     }
   });
 
-  footerTabs.forEach(function (tab) {
+    footerTabs.forEach(function (tab) {
     tab.classList.remove("footer-tab-pop-in", "footer-tab-pop-out");
 
     if (tab.dataset && tab.dataset.tab === name) {
@@ -133,8 +164,17 @@ function showTab(name) {
     }
   });
 
+  if (historyToolbar) {
+    if (name === "report") {
+      historyToolbar.classList.remove("hidden");
+    } else {
+      historyToolbar.classList.add("hidden");
+    }
+  }
+
   updatePageTitle(name);
 }
+
 
 // Update the visible indicator to show which field will be updated by translation.
 function updateTranslateTargetIndicator() {
@@ -177,13 +217,14 @@ function initFooterTabs() {
 }
 
 // Initialisation for general UI.
-if (feedbackNotesInput) {
-  setupAutoResize(feedbackNotesInput);
+if (smartfillNotesInput) {
+  setupAutoResize(smartfillNotesInput);
 }
 updateTranslateTargetIndicator();
 initFooterKeyboardBehavior();
 startHktClock();
 initFooterTabs();
+
 
 // Expose shared helpers for other scripts.
 window.setupAutoResize = window.setupAutoResize || setupAutoResize;
@@ -192,3 +233,6 @@ window.setTranslateTarget = window.setTranslateTarget || setTranslateTarget;
 window.updateTranslateTargetIndicator =
   window.updateTranslateTargetIndicator || updateTranslateTargetIndicator;
 window.showTab = window.showTab || showTab;
+window.scrollFieldIntoViewWithHeaderOffset =
+  window.scrollFieldIntoViewWithHeaderOffset || scrollFieldIntoViewWithHeaderOffset;
+
